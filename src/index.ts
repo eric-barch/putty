@@ -4,7 +4,7 @@ const deweyApi = express();
 const port = 3000;
 
 deweyApi.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello, World!");
 });
 
 deweyApi.listen(port, () => {
