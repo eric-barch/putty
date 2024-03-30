@@ -12,3 +12,19 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Book {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
+  author    Author   @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Author {
+  id        Int    @id @default(autoincrement())
+  firstName String
+  lastName  String
+  books     Book[]
+}
