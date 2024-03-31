@@ -2,7 +2,7 @@
 FROM node:latest
 
 # Create app directory inside Docker image.
-WORKDIR /server
+WORKDIR /api
 
 # Copy app dependencies to Docker app directory. This is done before copying the
 # rest of the source code to take advantage of Docker image caching. Wildcard 

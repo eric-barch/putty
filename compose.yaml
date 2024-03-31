@@ -13,16 +13,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  server:
+  api:
     depends_on:
       - db
-    build: .
-    container_name: server
+    build: ./api
+    container_name: api
     command: ["npm", "run", "dev"]
     ports:
       - "3000:3000"
-    volumes:
-      - .:/server
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
