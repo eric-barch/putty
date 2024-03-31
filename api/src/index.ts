@@ -1,21 +1,12 @@
 import express from "express";
+import router from "./routes";
 
-const api = express();
-const v1 = express.Router();
+const app = express();
 const port = 3000;
 
-api.use(express.json());
-api.use("/api/v1", v1);
+app.use(express.json());
+app.use("/api", router);
 
-v1.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
-
-v1.post("/books/:isbn", (req, res) => {
-  const { isbn } = req.params;
-  res.status(200).send(`Book with ISBN ${isbn} processed`);
-});
-
-api.listen(port, () => {
+app.listen(port, () => {
   console.log(`Dewey API listening on port ${port}`);
 });
