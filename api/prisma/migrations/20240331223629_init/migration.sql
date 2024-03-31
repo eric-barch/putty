@@ -3,6 +3,7 @@ CREATE TABLE "Book" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isbn" INTEGER NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "authorId" INTEGER NOT NULL,
 
