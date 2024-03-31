@@ -1,12 +1,12 @@
 import { Router } from "express";
-import v1Routes from "./v1";
+import v1Routes from "./v1Routes";
 
-const router = Router();
+const routes = Router();
 
 /**Use the v1 routes for any requests that start with "/api/v1" */
-router.use("/v1", v1Routes);
+routes.use("/v1", v1Routes);
 
 /**Add future versions like so:
- * router.use('/v2', v2Routes); */
+ * routes.use('/v2', v2Routes); */
 
-export default router;
+export default routes;

@@ -1,12 +1,12 @@
 import express from "express";
-import router from "./routes";
+import routes from "./routes";
 
-const app = express();
+const api = express();
 const port = 3000;
 
-app.use(express.json());
-app.use("/api", router);
+api.use(express.json());
+api.use("/api", routes);
 
-app.listen(port, () => {
+api.listen(port, () => {
   console.log(`Dewey API listening on port ${port}`);
 });
