@@ -19,13 +19,15 @@ services:
     build: ./api
     container_name: api
     command: ["npm", "run", "dev"]
-    ports:
-      - "3000:3000"
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/api
 
 
 volumes:
