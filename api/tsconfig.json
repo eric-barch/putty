@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "downlevelIteration": true,
     "target": "es2016",
     "module": "commonjs",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./out",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -10,5 +15,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]  
+  "exclude": ["node_modules"]
 }

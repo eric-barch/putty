@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { helloWorld } from "../controllers/root";
-import { lookUpBook } from "../controllers/books";
+import { helloWorld } from "@/controllers/root";
+import { lookUpBook } from "@/controllers/books";
 
 const router = Router();
 
