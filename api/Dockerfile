@@ -15,8 +15,11 @@ RUN npm install
 # Bundle source code inside Docker image.
 COPY . .
 
+# Ensure entrypoint script is executable.
+RUN chmod +x entrypoint.sh
+
 # Expose port 3000.
 EXPOSE 3000
 
 # Start server.
-CMD ["npm", "run", "start"]
+ENTRYPOINT ["entrypoint.sh"]
