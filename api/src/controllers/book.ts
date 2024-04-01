@@ -1,30 +1,33 @@
-import { PrismaClient } from "@prisma/client";
+import { Book, PrismaClient } from "@prisma/client";
 import axios from "axios";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
-const lookUpBook = async (request: Request, response: Response) => {
-  lookUpBookInDb(request, response)
-    .then(async () => {
-      await prisma.$disconnect();
-    })
-    .catch(async (error) => {
-      console.error(error);
-      await prisma.$disconnect();
-      await lookUpBookOnOpenLibrary(request, response);
+const searchBook = async (request: Request, response: Response) => {
+  const isbn = request.params.isbn;
+
+  const savedBook = await searchDb(isbn);
+
+  if (savedBook) {
+    return response.json({
+      isbn: savedBook.isbn,
+      title: savedBook.title,
     });
+  }
+
+  await searchOpenLibrary(request, response);
 };
 
-const lookUpBookInDb = async (request: Request, response: Response) => {
-  const allBooks = await prisma.book.findMany();
-  console.log("allBooks", allBooks);
+const searchDb = async (isbn: string): Promise<Book | null> => {
+  return await prisma.book.findUnique({
+    where: {
+      isbn: isbn,
+    },
+  });
 };
 
-const lookUpBookOnOpenLibrary = async (
-  request: Request,
-  response: Response,
-) => {
+const searchOpenLibrary = async (request: Request, response: Response) => {
   const isbn = request.params.isbn;
   const openLibraryUrl = `https://openlibrary.org/isbn/${isbn}`;
 
@@ -40,4 +43,30 @@ const lookUpBookOnOpenLibrary = async (
   }
 };
 
-export { lookUpBook };
+const addBook = async (request: Request, response: Response) => {
+  const { isbn, title } = request.body;
+
+  if (!isbn || !title) {
+    return response
+      .status(400)
+      .json({ message: "ISBN and title are required" });
+  }
+
+  try {
+    const newBook = await prisma.book.create({
+      data: {
+        isbn,
+        title,
+      },
+    });
+
+    response
+      .status(201)
+      .json({ message: "Book added successfully", book: newBook });
+  } catch (error) {
+    console.error("Failed to add book:", error);
+    response.status(500).json({ message: "Failed to add the book" });
+  }
+};
+
+export { addBook, searchBook };

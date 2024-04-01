@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { helloWorld } from "@/controllers/root";
-import { lookUpBook } from "@/controllers/book";
+import { addBook, searchBook } from "@/controllers/book";
 
 const routes = Router();
 
 routes.get("/", helloWorld);
 
-routes.post("/book/:isbn", lookUpBook);
+routes.get("/book/:isbn", searchBook);
+
+routes.put("/book", addBook);
 
 export default routes;

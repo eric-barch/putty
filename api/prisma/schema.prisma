@@ -12,15 +12,6 @@ model Book {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  isbn      Int
+  isbn      String   @unique
   title     String   @db.VarChar(255)
-  author    Author   @relation(fields: [authorId], references: [id])
-  authorId  Int
-}
-
-model Author {
-  id        Int    @id @default(autoincrement())
-  firstName String
-  lastName  String
-  books     Book[]
 }
