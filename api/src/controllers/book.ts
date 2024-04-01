@@ -5,30 +5,27 @@ import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
 const searchBook = async (request: Request, response: Response) => {
-  const isbn = request.params.isbn;
+  const { isbn } = request.params;
 
   const savedBook = await searchDb(isbn);
 
   if (savedBook) {
-    return response.json({
-      isbn: savedBook.isbn,
-      title: savedBook.title,
-    });
+    response.json({ ...savedBook });
+    return;
   }
 
-  await searchOpenLibrary(request, response);
+  await searchOpenLibrary(isbn, response);
 };
 
 const searchDb = async (isbn: string): Promise<Book | null> => {
   return await prisma.book.findUnique({
     where: {
-      isbn: isbn,
+      isbn,
     },
   });
 };
 
-const searchOpenLibrary = async (request: Request, response: Response) => {
-  const isbn = request.params.isbn;
+const searchOpenLibrary = async (isbn: string, response: Response) => {
   const openLibraryUrl = `https://openlibrary.org/isbn/${isbn}`;
 
   try {
@@ -57,7 +54,7 @@ const addBook = async (request: Request, response: Response) => {
     const newBook = await prisma.book.create({
       data: {
         isbn,
-        title,
+        ...request.body,
       },
     });
 

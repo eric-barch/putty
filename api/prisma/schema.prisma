@@ -14,4 +14,6 @@ model Book {
   updatedAt DateTime @updatedAt
   isbn      String   @unique
   title     String   @db.VarChar(255)
+  subtitle  String?  @db.VarChar(255)
+  lccn      String?
 }
