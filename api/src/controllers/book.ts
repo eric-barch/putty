@@ -44,7 +44,8 @@ const searchOpenLibrary = async (request: Request, response: Response) => {
 };
 
 const addBook = async (request: Request, response: Response) => {
-  const { isbn, title } = request.body;
+  const { isbn } = request.params;
+  const { title } = request.body;
 
   if (!isbn || !title) {
     return response
@@ -69,4 +70,25 @@ const addBook = async (request: Request, response: Response) => {
   }
 };
 
-export { addBook, searchBook };
+const deleteBook = async (request: Request, response: Response) => {
+  const { isbn } = request.params;
+
+  if (!isbn) {
+    return response.status(400).json({ message: "ISBN is required." });
+  }
+
+  try {
+    await prisma.book.delete({
+      where: {
+        isbn: isbn,
+      },
+    });
+
+    return response.status(200).json({ message: "Book deleted successfully." });
+  } catch (error) {
+    console.error("Failed to delete book:", error);
+    return response.status(500).json({ message: "Failed to delete the book." });
+  }
+};
+
+export { addBook, deleteBook, searchBook };
