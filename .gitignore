@@ -1,5 +1,3 @@
 .env
 api/node_modules/
 api/out/
-web/node_modules/
-web/out/

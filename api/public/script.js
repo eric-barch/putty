@@ -10,7 +10,7 @@ const dbListener = () => {
       .join("");
   }
 
-  const eventSource = new EventSource("/events");
+  const eventSource = new EventSource("/api/v1/events");
 
   eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -20,7 +20,6 @@ const dbListener = () => {
     }
   };
 
-  console.log("Call fetchBooks.");
   fetchBooks();
 };
 
