@@ -14,6 +14,7 @@ const getEvents = (request: Request, response: Response) => {
       action: "update",
       timestamp: new Date().toISOString(),
     };
+
     sendEvent(updateMessage);
   }, 5000);
 
