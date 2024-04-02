@@ -8,34 +8,34 @@ const searchBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    await searchDb(isbn, response);
-  } catch {
-    await searchOpenLibrary(isbn, response);
+    const book = await searchDb(isbn);
+    response.json(book);
+  } catch (error) {
+    try {
+      const book = await searchOpenLibrary(isbn);
+      response.json(book);
+    } catch {
+      response
+        .status(500)
+        .json({ message: `Failed to search for book with ISBN ${isbn}` });
+    }
   }
 };
 
-const searchDb = async (isbn: string, response: Response) => {
-  const book = await prisma.book.findUniqueOrThrow({
-    where: {
-      isbn,
-    },
+const searchDb = async (isbn: string) => {
+  return await prisma.book.findUniqueOrThrow({
+    where: { isbn },
   });
-
-  response.json({ ...book });
 };
 
-const searchOpenLibrary = async (isbn: string, response: Response) => {
-  const openLibraryUrl = `https://openlibrary.org/isbn/${isbn}`;
+const searchOpenLibrary = async (isbn: string) => {
+  const openLibraryUrl = `https://openlibrary.org/isbn/${isbn}.json`;
 
   try {
-    const openLibraryResponse = await axios.get(openLibraryUrl);
-    response.send(openLibraryResponse.data);
+    const response = await axios.get(openLibraryUrl);
+    return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      response.status(error.response?.status || 500).send(error.message);
-    } else {
-      response.status(500).send("An unknown error occurred.");
-    }
+    throw new Error("Failed to get book from Open Library");
   }
 };
 
@@ -43,16 +43,26 @@ const addBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
+    const openLibraryBook = await searchOpenLibrary(isbn);
+    const { title, subtitle, lccn, dewey_decimal_class } = openLibraryBook;
+    const firstLccn = lccn?.[0];
+    const firstDewey = dewey_decimal_class?.[0];
+
     const book = await prisma.book.create({
       data: {
         isbn,
         isCheckedIn: true,
-        ...request.body,
+        title,
+        subtitle,
+        lccn: firstLccn,
+        dewey: firstDewey,
       },
     });
 
-    response.status(201).json({ message: "Book added successfully", book });
-  } catch (error) {
+    response
+      .status(201)
+      .json({ message: `Added book with ISBN ${isbn}`, book });
+  } catch {
     response
       .status(500)
       .json({ message: `Failed to add book with ISBN ${isbn}` });
@@ -88,11 +98,11 @@ const checkInBook = async (isbn: string, response: Response) => {
       },
     });
     response.status(200).json({
-      message: `Book with ISBN ${isbn} checked in successfully.`,
+      message: `Checked in book with ISBN ${isbn}.`,
     });
   } catch {
     response.status(500).json({
-      message: `Error checking in book with ISBN ${isbn}`,
+      message: `Failed to check in book with ISBN ${isbn}.`,
     });
   }
 };
@@ -108,11 +118,11 @@ const checkOutBook = async (isbn: string, response: Response) => {
       },
     });
     response.status(200).json({
-      message: `Book with ISBN ${isbn} checked out successfully.`,
+      message: `Checked out book with ISBN ${isbn}.`,
     });
   } catch (error) {
     response.status(500).json({
-      message: `Error checking out book with ISBN ${isbn}`,
+      message: `Failed to check out book with ISBN ${isbn}.`,
     });
   }
 };
@@ -127,13 +137,11 @@ const deleteBook = async (request: Request, response: Response) => {
       },
     });
 
-    response
-      .status(200)
-      .json({ message: `Book with ISBN ${isbn} deleted successfully.` });
+    response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
   } catch (error) {
     response
       .status(500)
-      .json({ message: `Error deleting book with ISBN ${isbn}.` });
+      .json({ message: `Failed to delete book with ISBN ${isbn}.` });
   }
 };
 
