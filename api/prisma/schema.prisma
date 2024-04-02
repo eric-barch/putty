@@ -9,11 +9,13 @@ datasource db {
 }
 
 model Book {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isbn      String   @unique
-  title     String   @db.VarChar(255)
-  subtitle  String?  @db.VarChar(255)
-  lccn      String?
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isbn        String   @unique
+  isCheckedIn Boolean
+  title       String
+  subtitle    String?
+  dewey       String?
+  lccn        String?
 }
