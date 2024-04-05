@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
+import { sendEvent } from "./events";
 
 const prisma = new PrismaClient();
 
@@ -62,6 +63,8 @@ const addBook = async (request: Request, response: Response) => {
     response
       .status(201)
       .json({ message: `Added book with ISBN ${isbn}`, book });
+
+    sendEvent({ action: "update" });
   } catch {
     response
       .status(500)
@@ -97,9 +100,12 @@ const checkInBook = async (isbn: string, response: Response) => {
         isCheckedIn: true,
       },
     });
+
     response.status(200).json({
       message: `Checked in book with ISBN ${isbn}.`,
     });
+
+    sendEvent({ action: "update" });
   } catch {
     response.status(500).json({
       message: `Failed to check in book with ISBN ${isbn}.`,
@@ -117,9 +123,12 @@ const checkOutBook = async (isbn: string, response: Response) => {
         isCheckedIn: false,
       },
     });
+
     response.status(200).json({
       message: `Checked out book with ISBN ${isbn}.`,
     });
+
+    sendEvent({ action: "update" });
   } catch (error) {
     response.status(500).json({
       message: `Failed to check out book with ISBN ${isbn}.`,
@@ -138,6 +147,9 @@ const deleteBook = async (request: Request, response: Response) => {
     });
 
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
+
+    console.log("delete book");
+    sendEvent({ action: "update" });
   } catch (error) {
     response
       .status(500)

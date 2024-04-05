@@ -13,11 +13,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  api:
+  server:
     depends_on:
       - db
-    build: ./api
-    container_name: api
+    build: ./server
+    container_name: server
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
@@ -27,8 +27,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./api:/api
-    entrypoint: ["/bin/sh", "/api/entrypoint.sh"]
+      - ./server:/server
+    entrypoint: ["/bin/sh", "/server/entrypoint.sh"]
 
 volumes:
   postgres_data:

@@ -1,27 +1,22 @@
 import { Request, Response } from "express";
 
+let response: Response;
+
+const sendEvent = (data: any) => {
+  if (!response) return;
+  response.write(`data: ${JSON.stringify(data)}\n\n`);
+};
+
 const getEvents = (request: Request, response: Response) => {
   response.setHeader("Content-Type", "text/event-stream");
   response.setHeader("Cache-Control", "no-cache");
   response.setHeader("Connection", "keep-alive");
 
-  const sendEvent = (data: any) => {
-    response.write(`data: ${JSON.stringify(data)}\n\n`);
-  };
-
-  const intervalId = setInterval(() => {
-    const updateMessage = {
-      action: "update",
-      timestamp: new Date().toISOString(),
-    };
-
-    sendEvent(updateMessage);
-  }, 5000);
+  response = response;
 
   request.on("close", () => {
-    clearInterval(intervalId);
     response.end();
   });
 };
 
-export { getEvents };
+export { getEvents, sendEvent };
