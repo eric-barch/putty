@@ -61,9 +61,9 @@ const addBook = async (request: Request, response: Response) => {
     const book = await prisma.book.create({
       data: {
         isbn,
-        isCheckedIn: true,
         title,
         subtitle,
+        isCheckedIn: true,
         lccn: firstLccn,
         dewey: firstDewey,
       },

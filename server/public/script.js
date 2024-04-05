@@ -6,11 +6,11 @@ const dbListener = () => {
     const books = await response.json();
 
     bookList.innerHTML =
-      "<tr><th>Title</th><th>Dewey Decimal Classification</th></tr>" +
+      "<tr><th>Title</th><th>Dewey Decimal Classification</th><th>Checked In</th></tr>" +
       books
         .map(
           (book) =>
-            `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}<td></tr>`,
+            `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}<td><td>${book.isCheckedIn}</td></tr>`,
         )
         .join("");
   };
@@ -26,7 +26,7 @@ const dbListener = () => {
       if (book.dewey < dewey) {
         bookRow.insertAdjacentHTML(
           "beforebegin",
-          `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td></tr>`,
+          `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td><td>${book.isCheckedIn}</td></tr>`,
         );
         inserted = true;
         break;
@@ -36,7 +36,7 @@ const dbListener = () => {
     if (!inserted) {
       bookList.insertAdjacentHTML(
         "beforeend",
-        `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td></tr>`,
+        `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td><td>${book.isCheckedIn}</td></tr>`,
       );
     }
   };
@@ -56,6 +56,7 @@ const dbListener = () => {
       // Dewey number hasn't changed. No need to re-sort.
       bookRow.cells[0].textContent = book.title;
       bookRow.cells[1].textContent = book.dewey;
+      bookRow.cells[3].textContent = book.isCheckedIn;
     }
   };
 
@@ -68,12 +69,8 @@ const dbListener = () => {
 
   eventSource.onmessage = async (event) => {
     const { isbn } = JSON.parse(event.data);
-    console.log("isbn", isbn);
-
     const response = await fetch(`/api/v1/book/${isbn}`);
     const { book, source } = await response.json();
-
-    console.log({ source, book });
 
     if (source === "db") {
       try {
@@ -82,7 +79,6 @@ const dbListener = () => {
         await addBook(book);
       }
     } else {
-      console.log("delete book");
       await deleteBook(isbn);
     }
   };
