@@ -1,26 +1,35 @@
+#!/bin/bash
+
 set -e
 
-max_attempts=5
+# Configuration
+host=db
+port=5432
+max_attempts=10
+delay=5
 attempt_num=1
-delay=10
 
-echo "Attempting to run Prisma migrations..."
+echo "Waiting for PostgreSQL at $host:$port to become available..."
 
-while ! npx prisma migrate deploy; do
-  echo "Attempt $attempt_num failed. Retrying in $delay seconds..."
-
-  attempt_num=$((attempt_num+1))
-
-  if [ $attempt_num -gt $max_attempts ]; then
-    echo "Max attempts reached. Unable to complete migrations."
-    exit 1
-  fi
-
+# Wait for PostgreSQL to become available
+until pg_isready -h $host -p $port -q || [ $attempt_num -gt $max_attempts ]; do
+  echo "PostgreSQL not yet available (attempt $attempt_num)..."
   sleep $delay
+  attempt_num=$((attempt_num + 1))
 done
 
-echo "Migrations applied successfully."
+if [ $attempt_num -gt $max_attempts ]; then
+  echo "Max attempts reached. PostgreSQL not available."
+  exit 1
+fi
 
+echo "PostgreSQL available. Running Prisma migrations..."
+
+# Run Prisma migrations
+npx prisma migrate deploy
+
+echo "Migrations applied successfully."
 echo "Starting the application..."
 
+# Start server in dev mode
 npm run dev

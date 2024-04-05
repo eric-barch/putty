@@ -4,6 +4,9 @@ FROM node:latest
 # Create app directory inside Docker image.
 WORKDIR /server
 
+# Update package lists and install PostgreSQL client
+RUN apt-get update && apt-get install -y postgresql-client
+
 # Copy app dependencies to Docker app directory. This is done before copying the
 # rest of the source code to take advantage of Docker image caching. Wildcard 
 # ensures package.json and package-lock.json are both copied.
