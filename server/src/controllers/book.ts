@@ -44,8 +44,8 @@ const addBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const openLibraryBook = await searchOpenLibrary(isbn);
-    const { title, subtitle, lccn, dewey_decimal_class } = openLibraryBook;
+    const { title, subtitle, lccn, dewey_decimal_class } =
+      await searchOpenLibrary(isbn);
     const firstLccn = lccn?.[0];
     const firstDewey = dewey_decimal_class?.[0];
 
@@ -64,7 +64,8 @@ const addBook = async (request: Request, response: Response) => {
       .status(201)
       .json({ message: `Added book with ISBN ${isbn}`, book });
 
-    sendEvent({ action: "update" });
+    console.log("Sending event", isbn);
+    sendEvent({ isbn });
   } catch {
     response
       .status(500)
@@ -145,6 +146,8 @@ const deleteBook = async (request: Request, response: Response) => {
         isbn,
       },
     });
+
+    console.log("foo");
 
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
 

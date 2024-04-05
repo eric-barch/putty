@@ -1,26 +1,77 @@
 const dbListener = () => {
   const bookList = document.getElementById("book-list");
 
-  async function fetchBooks() {
+  const getAllBooks = async () => {
     const response = await fetch("/api/v1/books");
     const books = await response.json();
 
-    bookList.innerHTML = books
-      .map((book) => `<tr><td>${book.title}</td><td>${book.dewey}<td></tr>`)
-      .join("");
-  }
+    bookList.innerHTML =
+      "<tr><td>Title</td><td>Dewey Decimal Classification</td></tr>" +
+      books
+        .map(
+          (book) =>
+            `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}<td></tr>`,
+        )
+        .join("");
+  };
 
-  const eventSource = new EventSource("/api/v1/events");
+  const addBook = async (book) => {
+    const bookRows = bookList.querySelectorAll("tr[data-isbn]");
 
-  eventSource.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+    let inserted = false;
 
-    if (data.action === "update") {
-      fetchBooks();
+    for (const bookRow of bookRows) {
+      const dewey = bookRow.cells[1].textContent;
+
+      if (book.dewey < dewey) {
+        bookRow.insertAdjacentHTML(
+          "beforebegin",
+          `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td></tr>`,
+        );
+        inserted = true;
+        break;
+      }
+    }
+
+    if (!inserted) {
+      bookList.insertAdjacentHTML(
+        "beforeend",
+        `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td></tr>`,
+      );
     }
   };
 
-  fetchBooks();
+  const updateBook = async (book) => {
+    console.error("Implement updateBook");
+    throw new Error("Implement updateBook");
+  };
+
+  const deleteBook = async (book) => {
+    console.error("Implement deleteBook()");
+  };
+
+  const eventSource = new EventSource("/api/v1/events");
+
+  eventSource.onmessage = async (event) => {
+    console.log("Received event", event);
+    const data = JSON.parse(event.data);
+    const { isbn } = data;
+    console.log("isbn", isbn);
+    const response = await fetch(`/api/v1/book/${isbn}`);
+    const book = await response.json();
+
+    if (book) {
+      try {
+        await updateBook(book);
+      } catch {
+        await addBook(book);
+      }
+    } else {
+      await deleteBook(book);
+    }
+  };
+
+  getAllBooks();
 };
 
 document.addEventListener("DOMContentLoaded", dbListener);

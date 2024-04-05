@@ -3,7 +3,11 @@ import { Request, Response } from "express";
 let response: Response;
 
 const sendEvent = (data: any) => {
-  if (!response) return;
+  if (!response) {
+    console.log("!response");
+    return;
+  }
+
   response.write(`data: ${JSON.stringify(data)}\n\n`);
 };
 
