@@ -2,7 +2,7 @@ const dbListener = () => {
   const bookList = document.getElementById("book-list");
 
   const getAllBooks = async () => {
-    const response = await fetch("/api/v1/books");
+    const response = await fetch("/api/v1/book");
     const books = await response.json();
 
     bookList.innerHTML =
@@ -48,15 +48,14 @@ const dbListener = () => {
 
   const deleteBook = async (book) => {
     console.error("Implement deleteBook()");
+    throw new Error("Implement deleteBook()");
   };
 
-  const eventSource = new EventSource("/api/v1/events");
+  const eventSource = new EventSource("/api/v1/book-events");
 
   eventSource.onmessage = async (event) => {
-    console.log("Received event", event);
     const data = JSON.parse(event.data);
     const { isbn } = data;
-    console.log("isbn", isbn);
     const response = await fetch(`/api/v1/book/${isbn}`);
     const book = await response.json();
 

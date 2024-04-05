@@ -1,9 +1,23 @@
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { sendEvent } from "./events";
+import { sendBookEvent } from "./events";
 
 const prisma = new PrismaClient();
+
+const getAllBooks = async (request: Request, response: Response) => {
+  try {
+    const books = await prisma.book.findMany({
+      orderBy: {
+        dewey: "asc",
+      },
+    });
+
+    response.json(books);
+  } catch (error) {
+    response.status(500).json({ error: "Failed to get all books." });
+  }
+};
 
 const searchBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
@@ -65,7 +79,7 @@ const addBook = async (request: Request, response: Response) => {
       .json({ message: `Added book with ISBN ${isbn}`, book });
 
     console.log("Sending event", isbn);
-    sendEvent({ isbn });
+    sendBookEvent({ isbn });
   } catch {
     response
       .status(500)
@@ -106,7 +120,7 @@ const checkInBook = async (isbn: string, response: Response) => {
       message: `Checked in book with ISBN ${isbn}.`,
     });
 
-    sendEvent({ action: "update" });
+    sendBookEvent({ action: "update" });
   } catch {
     response.status(500).json({
       message: `Failed to check in book with ISBN ${isbn}.`,
@@ -129,7 +143,7 @@ const checkOutBook = async (isbn: string, response: Response) => {
       message: `Checked out book with ISBN ${isbn}.`,
     });
 
-    sendEvent({ action: "update" });
+    sendBookEvent({ action: "update" });
   } catch (error) {
     response.status(500).json({
       message: `Failed to check out book with ISBN ${isbn}.`,
@@ -152,7 +166,7 @@ const deleteBook = async (request: Request, response: Response) => {
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
 
     console.log("delete book");
-    sendEvent({ action: "update" });
+    sendBookEvent({ action: "update" });
   } catch (error) {
     response
       .status(500)
@@ -160,4 +174,4 @@ const deleteBook = async (request: Request, response: Response) => {
   }
 };
 
-export { addBook, deleteBook, searchBook, updateBook };
+export { addBook, deleteBook, getAllBooks, searchBook, updateBook };
