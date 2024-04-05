@@ -24,11 +24,11 @@ const searchBook = async (request: Request, response: Response) => {
 
   try {
     const book = await searchDb(isbn);
-    response.json(book);
+    response.json({ source: "db", book });
   } catch (error) {
     try {
       const book = await searchOpenLibrary(isbn);
-      response.json(book);
+      response.json({ source: "openLibrary", book });
     } catch {
       response
         .status(500)
@@ -45,13 +45,8 @@ const searchDb = async (isbn: string) => {
 
 const searchOpenLibrary = async (isbn: string) => {
   const openLibraryUrl = `https://openlibrary.org/isbn/${isbn}.json`;
-
-  try {
-    const response = await axios.get(openLibraryUrl);
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to get book from Open Library");
-  }
+  const response = await axios.get(openLibraryUrl);
+  return response.data;
 };
 
 const addBook = async (request: Request, response: Response) => {
@@ -78,7 +73,6 @@ const addBook = async (request: Request, response: Response) => {
       .status(201)
       .json({ message: `Added book with ISBN ${isbn}`, book });
 
-    console.log("Sending event", isbn);
     sendBookEvent({ isbn });
   } catch {
     response
@@ -120,7 +114,7 @@ const checkInBook = async (isbn: string, response: Response) => {
       message: `Checked in book with ISBN ${isbn}.`,
     });
 
-    sendBookEvent({ action: "update" });
+    sendBookEvent({ isbn });
   } catch {
     response.status(500).json({
       message: `Failed to check in book with ISBN ${isbn}.`,
@@ -143,7 +137,7 @@ const checkOutBook = async (isbn: string, response: Response) => {
       message: `Checked out book with ISBN ${isbn}.`,
     });
 
-    sendBookEvent({ action: "update" });
+    sendBookEvent({ isbn });
   } catch (error) {
     response.status(500).json({
       message: `Failed to check out book with ISBN ${isbn}.`,
@@ -161,12 +155,9 @@ const deleteBook = async (request: Request, response: Response) => {
       },
     });
 
-    console.log("foo");
-
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
 
-    console.log("delete book");
-    sendBookEvent({ action: "update" });
+    sendBookEvent({ isbn });
   } catch (error) {
     response
       .status(500)

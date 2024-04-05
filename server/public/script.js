@@ -6,7 +6,7 @@ const dbListener = () => {
     const books = await response.json();
 
     bookList.innerHTML =
-      "<tr><td>Title</td><td>Dewey Decimal Classification</td></tr>" +
+      "<tr><th>Title</th><th>Dewey Decimal Classification</th></tr>" +
       books
         .map(
           (book) =>
@@ -42,31 +42,48 @@ const dbListener = () => {
   };
 
   const updateBook = async (book) => {
-    console.error("Implement updateBook");
-    throw new Error("Implement updateBook");
+    const bookRow = bookList.querySelector(`tr[data-isbn="${book.isbn}"]`);
+
+    if (!bookRow) {
+      console.error(`Book with ISBN ${isbn} does not exist in book-list.`);
+      throw new Error(`Book with ISBN ${isbn} does not exist in book-list.`);
+    }
+
+    if (bookRow.cells[1].textContent !== book.dewey) {
+      bookRow.remove();
+      await addBook(book);
+    } else {
+      // Dewey number hasn't changed. No need to re-sort.
+      bookRow.cells[0].textContent = book.title;
+      bookRow.cells[1].textContent = book.dewey;
+    }
   };
 
-  const deleteBook = async (book) => {
-    console.error("Implement deleteBook()");
-    throw new Error("Implement deleteBook()");
+  const deleteBook = async (isbn) => {
+    const bookRow = bookList.querySelector(`tr[data-isbn="${isbn}"]`);
+    bookRow.remove();
   };
 
   const eventSource = new EventSource("/api/v1/book-events");
 
   eventSource.onmessage = async (event) => {
-    const data = JSON.parse(event.data);
-    const { isbn } = data;
-    const response = await fetch(`/api/v1/book/${isbn}`);
-    const book = await response.json();
+    const { isbn } = JSON.parse(event.data);
+    console.log("isbn", isbn);
 
-    if (book) {
+    const response = await fetch(`/api/v1/book/${isbn}`);
+    const { book, source } = await response.json();
+
+    console.log({ source, book });
+
+    if (source === "db") {
       try {
         await updateBook(book);
       } catch {
         await addBook(book);
       }
     } else {
-      await deleteBook(book);
+      console.log("delete book");
+      await deleteBook(isbn);
     }
   };
 
