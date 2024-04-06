@@ -4,7 +4,8 @@ FROM node:latest
 # Create app directory inside Docker image.
 WORKDIR /server
 
-# Update package lists and install PostgreSQL client
+# PostgreSQL client provides pg_isready, which entrypoint script uses to 
+# determine when to run Prisma migrations.
 RUN apt-get update && apt-get install -y postgresql-client
 
 # Copy app dependencies to Docker app directory. This is done before copying the
