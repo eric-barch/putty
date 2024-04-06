@@ -1,22 +1,20 @@
 const dbListener = () => {
-  const bookList = document.getElementById("book-list");
+  const bookListBody = document.getElementById("book-list-body");
 
   const getAllBooks = async () => {
     const response = await fetch("/api/v1/book");
     const books = await response.json();
 
-    bookList.innerHTML =
-      "<tr><th>Title</th><th>Dewey Decimal Classification</th><th>Checked In</th></tr>" +
-      books
-        .map(
-          (book) =>
-            `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}<td><td>${book.isCheckedIn}</td></tr>`,
-        )
-        .join("");
+    books.forEach((book) => {
+      bookListBody.insertAdjacentHTML(
+        "beforeend",
+        `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td><td>${book.isCheckedIn}</td></tr>`,
+      );
+    });
   };
 
   const addBook = async (book) => {
-    const bookRows = bookList.querySelectorAll("tr[data-isbn]");
+    const bookRows = bookListBody.querySelectorAll("tr[data-isbn]");
 
     let inserted = false;
 
@@ -34,7 +32,7 @@ const dbListener = () => {
     }
 
     if (!inserted) {
-      bookList.insertAdjacentHTML(
+      bookListBody.insertAdjacentHTML(
         "beforeend",
         `<tr data-isbn="${book.isbn}"><td>${book.title}</td><td>${book.dewey}</td><td>${book.isCheckedIn}</td></tr>`,
       );
@@ -42,11 +40,11 @@ const dbListener = () => {
   };
 
   const updateBook = async (book) => {
-    const bookRow = bookList.querySelector(`tr[data-isbn="${book.isbn}"]`);
+    const bookRow = bookListBody.querySelector(`tr[data-isbn="${book.isbn}"]`);
 
     if (!bookRow) {
-      console.error(`Book with ISBN ${isbn} does not exist in book-list.`);
-      throw new Error(`Book with ISBN ${isbn} does not exist in book-list.`);
+      console.error(`Did not find book with ISBN ${isbn}.`);
+      throw new Error(`Did not find book with ISBN ${isbn}.`);
     }
 
     if (bookRow.cells[1].textContent !== book.dewey) {
@@ -56,12 +54,12 @@ const dbListener = () => {
       // Dewey number hasn't changed. No need to re-sort.
       bookRow.cells[0].textContent = book.title;
       bookRow.cells[1].textContent = book.dewey;
-      bookRow.cells[3].textContent = book.isCheckedIn;
+      bookRow.cells[2].textContent = book.isCheckedIn;
     }
   };
 
   const deleteBook = async (isbn) => {
-    const bookRow = bookList.querySelector(`tr[data-isbn="${isbn}"]`);
+    const bookRow = bookListBody.querySelector(`tr[data-isbn="${isbn}"]`);
     bookRow.remove();
   };
 
@@ -73,12 +71,16 @@ const dbListener = () => {
     const { book, source } = await response.json();
 
     if (source === "db") {
+      /**If the book came from the database, it should either be updated in or
+       * added to our displayed library. */
       try {
         await updateBook(book);
       } catch {
         await addBook(book);
       }
     } else {
+      /**If the book did not come from the database, it came from the fallback
+       * external API lookups. It should not be included in our displayed library. */
       await deleteBook(isbn);
     }
   };
