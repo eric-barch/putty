@@ -1,5 +1,23 @@
+form#searchForm {
+  display: flex;
+  width: 70%;
+  margin: auto;
+  margin-bottom: 8px;
+}
+
+input#searchInput {
+  flex-grow: 1;
+  padding: 4px;
+  margin-right: 8px;
+}
+
+input#searchButton {
+  padding: 4px;
+}
+
 table {
   margin: 0 auto;
+  width: 70%;
   border-collapse: collapse;
   border: 1px solid #000000;
 }
