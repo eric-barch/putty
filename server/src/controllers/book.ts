@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Book } from "@prisma/client";
 import { Request, Response } from "express";
 import { sendBookEvent } from "./events";
 
@@ -13,31 +13,31 @@ const getAllBooks = async (request: Request, response: Response) => {
       },
     });
 
-    response.json(books);
+    response.status(200).json(books);
   } catch (error) {
     response.status(500).json({ error: "Failed to get all books." });
   }
 };
 
-const searchBook = async (request: Request, response: Response) => {
+const getBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const book = await searchDb(isbn);
-    response.json({ source: "db", book });
+    const book = await getBookFromDb(isbn);
+    response.status(200).json({ source: "db", book });
   } catch (error) {
     try {
-      const book = await searchGoogleBooks(isbn);
-      response.json({ source: "googleBooks", book });
+      const book = await getBookFromGoogleBooks(isbn);
+      response.status(200).json({ source: "googleBooks", book });
     } catch {
       response
         .status(500)
-        .json({ message: `Failed to search for book with ISBN ${isbn}` });
+        .json({ message: `Failed to get book with ISBN ${isbn}` });
     }
   }
 };
 
-const searchDb = async (isbn: string) => {
+const getBookFromDb = async (isbn: string) => {
   return await prisma.book.findFirstOrThrow({
     where: {
       OR: [{ isbn10: isbn }, { isbn13: isbn }],
@@ -45,7 +45,7 @@ const searchDb = async (isbn: string) => {
   });
 };
 
-const searchGoogleBooks = async (isbn: string) => {
+const getBookFromGoogleBooks = async (isbn: string) => {
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
   const response = await axios.get(url);
   return response.data.items[0].volumeInfo;
@@ -55,7 +55,7 @@ const addBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const googleBookInfo = await searchGoogleBooks(isbn);
+    const googleBookInfo = await getBookFromGoogleBooks(isbn);
 
     const {
       title,
@@ -92,11 +92,8 @@ const addBook = async (request: Request, response: Response) => {
       },
     });
 
-    response
-      .status(201)
-      .json({ message: `Added book with ISBN ${isbn}`, book });
+    response.status(201).json(book);
 
-    // Assuming sendBookEvent is a function that sends an event about a new book being added
     sendBookEvent({ isbn });
   } catch (error) {
     response
@@ -107,86 +104,31 @@ const addBook = async (request: Request, response: Response) => {
 
 const updateBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
-  const { action } = request.body;
+  const { book } = request.body;
 
-  switch (action) {
-    case "checkIn":
-      await checkInBook(isbn, response);
-      break;
-    case "checkOut":
-      await checkOutBook(isbn, response);
-      break;
-    default:
-      response.status(400).json({
-        message: `Failed to update book with ISBN ${isbn}. Unrecognized action: ${action}`,
-      });
-  }
-};
-
-const checkInBook = async (isbn: string, response: Response) => {
   try {
     if (isbn.length === 10) {
       await prisma.book.update({
         where: {
           isbn10: isbn,
         },
-        data: {
-          isCheckedIn: true,
-        },
+        data: { ...book },
       });
     } else if (isbn.length === 13) {
       await prisma.book.update({
         where: {
           isbn13: isbn,
         },
-        data: {
-          isCheckedIn: true,
-        },
+        data: { ...book },
       });
     }
 
-    response.status(200).json({
-      message: `Checked in book with ISBN ${isbn}.`,
-    });
+    response.status(200).json(book);
 
     sendBookEvent({ isbn });
   } catch {
     response.status(500).json({
-      message: `Failed to check in book with ISBN ${isbn}.`,
-    });
-  }
-};
-
-const checkOutBook = async (isbn: string, response: Response) => {
-  try {
-    if (isbn.length === 10) {
-      await prisma.book.update({
-        where: {
-          isbn10: isbn,
-        },
-        data: {
-          isCheckedIn: false,
-        },
-      });
-    } else if (isbn.length === 13) {
-      await prisma.book.update({
-        where: {
-          isbn13: isbn,
-        },
-        data: {
-          isCheckedIn: false,
-        },
-      });
-    }
-
-    response.status(200).json({
-      message: `Checked out book with ISBN ${isbn}.`,
-    });
-
-    sendBookEvent({ isbn });
-  } catch (error) {
-    response.status(500).json({
-      message: `Failed to check out book with ISBN ${isbn}.`,
+      message: `Failed to update book with ISBN ${isbn}.`,
     });
   }
 };
@@ -219,4 +161,4 @@ const deleteBook = async (request: Request, response: Response) => {
   }
 };
 
-export { addBook, deleteBook, getAllBooks, searchBook, updateBook };
+export { addBook, deleteBook, getAllBooks, getBook as searchBook, updateBook };

@@ -2,10 +2,24 @@ const dbListener = () => {
   const bookTableBody = document.getElementById("bookTableBody");
   const bookRowTemplate = document.getElementById("bookRowTemplate");
 
+  const getAllBooks = async () => {
+    const response = await fetch("/api/v1/book");
+    const books = await response.json();
+
+    books.forEach((book) => {
+      const newBookRow = createNewBookRow(book);
+      bookTableBody.appendChild(newBookRow);
+    });
+  };
+
   const createNewBookRow = (book) => {
+    const isbn = book.isbn13 || book.isbn10;
+
     const newBookRow = document
       .importNode(bookRowTemplate.content, true)
       .querySelector("tr");
+
+    newBookRow.setAttribute("data-isbn", book.isbn13 || book.isbn10);
 
     Object.entries(book).forEach(([key, value]) => {
       const element = newBookRow.querySelector(`.${key}`);
@@ -17,22 +31,12 @@ const dbListener = () => {
     return newBookRow;
   };
 
-  const getAllBooks = async () => {
-    const response = await fetch("/api/v1/book");
-    const books = await response.json();
-
-    books.forEach((book) => {
-      const newBookRow = createNewBookRow(book);
-      bookTableBody.appendChild(newBookRow);
-    });
-  };
-
   const addBook = async (book) => {
     const bookRows = bookTableBody.querySelectorAll("tr[data-isbn]");
     const newBookRow = createNewBookRow(book);
 
     for (const bookRow of bookRows) {
-      const dewey = bookRow.querySelector(".dewey").textContent;
+      const dewey = bookRow.querySelector(".dewey")?.textContent;
 
       if (book.dewey < dewey) {
         bookRow.before(newBookRow);
@@ -44,7 +48,9 @@ const dbListener = () => {
   };
 
   const updateBook = async (book) => {
-    const bookRow = bookTableBody.querySelector(`tr[data-isbn="${book.isbn}"]`);
+    const isbn = book.isbn13 || book.isbn10;
+
+    const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
 
     if (!bookRow) {
       console.error(`Did not find book with ISBN ${isbn}.`);
@@ -77,13 +83,16 @@ const dbListener = () => {
       /**If the book came from the database, it should either be updated in or
        * added to our displayed library. */
       try {
+        console.log("Trying to update book.");
         await updateBook(book);
       } catch {
+        console.log("Trying to add book.");
         await addBook(book);
       }
     } else {
       /**If the book did not come from the database, it came from the fallback
        * external API lookups. It should not be included in our displayed library. */
+      console.log("Trying to delete book.");
       await deleteBook(isbn);
     }
   };
