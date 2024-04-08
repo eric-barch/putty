@@ -1,0 +1,24 @@
+table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 1px solid #000000;
+}
+
+tbody > tr {
+  height: 60px;
+}
+
+.thumbnail img {
+  height: 50px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 4px;
+  border: 1px solid #000000;
+  vertical-align: middle;
+}

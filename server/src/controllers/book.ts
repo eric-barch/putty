@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PrismaClient, Book } from "@prisma/client";
+import { Book, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { sendBookEvent } from "./events";
 
@@ -55,7 +55,7 @@ const addBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const googleBookInfo = await getBookFromGoogleBooks(isbn);
+    const googleBook = await getBookFromGoogleBooks(isbn);
 
     const {
       title,
@@ -65,7 +65,7 @@ const addBook = async (request: Request, response: Response) => {
       description,
       industryIdentifiers,
       imageLinks,
-    } = googleBookInfo;
+    } = googleBook;
 
     const isbn_10 = industryIdentifiers.find(
       (industryIdentifier: any) => industryIdentifier.type === "ISBN_10",
@@ -85,6 +85,7 @@ const addBook = async (request: Request, response: Response) => {
         authors: authorsString,
         publishedDate: new Date(publishedDate),
         description,
+        scannedIsbn: isbn,
         isbn10: isbn_10,
         isbn13: isbn_13,
         thumbnail,
@@ -104,22 +105,24 @@ const addBook = async (request: Request, response: Response) => {
 
 const updateBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
-  const { book } = request.body;
+  const data = request.body;
 
   try {
+    let book: Book | undefined;
+
     if (isbn.length === 10) {
-      await prisma.book.update({
+      book = await prisma.book.update({
         where: {
           isbn10: isbn,
         },
-        data: { ...book },
+        data,
       });
     } else if (isbn.length === 13) {
-      await prisma.book.update({
+      book = await prisma.book.update({
         where: {
           isbn13: isbn,
         },
-        data: { ...book },
+        data,
       });
     }
 
@@ -161,4 +164,4 @@ const deleteBook = async (request: Request, response: Response) => {
   }
 };
 
-export { addBook, deleteBook, getAllBooks, getBook as searchBook, updateBook };
+export { addBook, deleteBook, getAllBooks, getBook, updateBook };

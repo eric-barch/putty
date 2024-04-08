@@ -19,12 +19,21 @@ const dbListener = () => {
       .importNode(bookRowTemplate.content, true)
       .querySelector("tr");
 
-    newBookRow.setAttribute("data-isbn", book.isbn13 || book.isbn10);
+    newBookRow.setAttribute("data-isbn", isbn);
 
     Object.entries(book).forEach(([key, value]) => {
       const element = newBookRow.querySelector(`.${key}`);
+
       if (element) {
-        element.textContent = value;
+        if (key === "thumbnail") {
+          const img = document.createElement("img");
+          img.src = value;
+          img.alt = `Book cover for ${book.title}`;
+          element.textContent = "";
+          element.appendChild(img);
+        } else {
+          element.textContent = value;
+        }
       }
     });
 
@@ -57,11 +66,14 @@ const dbListener = () => {
       throw new Error(`Did not find book with ISBN ${isbn}.`);
     }
 
-    if (bookRow.querySelector(".dewey").textContent !== book.dewey) {
+    if (
+      bookRow.querySelector(".deweyClassification").textContent !==
+      book.deweyClassification
+    ) {
       bookRow.remove();
       await addBook(book);
     } else {
-      // Dewey number hasn't changed. No need to re-sort.
+      /**Dewey number hasn't changed. No need to re-sort. */
       const newBookRow = createNewBookRow(book);
       bookRow.replaceWith(newBookRow);
     }
