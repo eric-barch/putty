@@ -1,17 +1,17 @@
-form#searchForm {
+form#searchBookForm {
   display: flex;
   width: 70%;
   margin: auto;
   margin-bottom: 8px;
 }
 
-input#searchInput {
+input#searchBookInput {
   flex-grow: 1;
   padding: 4px;
   margin-right: 8px;
 }
 
-input#searchButton {
+input#searchBookButton {
   padding: 4px;
 }
 

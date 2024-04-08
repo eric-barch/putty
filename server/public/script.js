@@ -112,4 +112,21 @@ const dbListener = () => {
   getAllBooks();
 };
 
+const formListener = () => {
+  const searchBookForm = document.getElementById("searchBookForm");
+  const searchBookInput = document.getElementById("searchBookInput");
+
+  searchBookForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const isbn = searchBookInput.value;
+    searchBookInput.value = "";
+
+    await fetch(`/api/v1/book/${isbn}`, {
+      method: "PUT",
+    });
+  });
+};
+
 document.addEventListener("DOMContentLoaded", dbListener);
+document.addEventListener("DOMContentLoaded", formListener);
