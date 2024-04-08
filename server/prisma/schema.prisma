@@ -17,6 +17,7 @@ model Book {
   authors                         String
   publishedDate                   DateTime?
   description                     String?
+  scannedIsbn                     String
   isbn10                          String    @unique
   isbn13                          String    @unique
   thumbnail                       String?

@@ -8,6 +8,7 @@ CREATE TABLE "Book" (
     "authors" TEXT NOT NULL,
     "publishedDate" TIMESTAMP(3),
     "description" TEXT,
+    "scannedIsbn" TEXT NOT NULL,
     "isbn10" TEXT NOT NULL,
     "isbn13" TEXT NOT NULL,
     "thumbnail" TEXT,
