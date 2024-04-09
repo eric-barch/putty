@@ -9,19 +9,24 @@ datasource db {
 }
 
 model Book {
-  id                              Int       @id @default(autoincrement())
-  createdAt                       DateTime  @default(now())
-  updatedAt                       DateTime  @updatedAt
-  title                           String
-  subtitle                        String?
-  authors                         String
-  publishedDate                   DateTime?
-  description                     String?
-  scannedIsbn                     String
-  isbn10                          String    @unique
-  isbn13                          String    @unique
-  thumbnail                       String?
-  deweyClassification             String?
-  libraryOfCongressClassification String?
-  isCheckedIn                     Boolean
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  title               String
+  subtitle            String?
+  authors             String
+  publishedDate       DateTime?
+  description         String?
+  thumbnail           String?
+  scannedIsbn         String    @unique
+  isbn10              String?   @unique
+  isbn13              String?   @unique
+  amazonId            String?   @unique
+  googleId            String?   @unique
+  lcId                String?   @unique
+  oclcId              String?   @unique
+  openLibraryId       String?   @unique
+  deweyClassification String?
+  lcClassification    String?
+  isCheckedIn         Boolean
 }
