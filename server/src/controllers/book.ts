@@ -48,7 +48,13 @@ const getBookFromDb = async (isbn: string) => {
 const getBookFromGoogleBooks = async (isbn: string) => {
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
   const response = await axios.get(url);
-  return response.data.items[0].volumeInfo;
+  return response.data.items[0];
+};
+
+const getBookFromOpenLibrary = async (isbn: string) => {
+  const url = `https://openlibrary.org/isbn/${isbn}.json`;
+  const response = await axios.get(url);
+  return response.data;
 };
 
 const addBook = async (request: Request, response: Response) => {
@@ -56,47 +62,55 @@ const addBook = async (request: Request, response: Response) => {
 
   try {
     const googleBook = await getBookFromGoogleBooks(isbn);
+    const openLibraryBook = await getBookFromOpenLibrary(isbn);
 
-    const {
-      title,
-      subtitle,
-      authors,
-      publishedDate,
-      description,
-      industryIdentifiers,
-      imageLinks,
-    } = googleBook;
+    let { title, subtitle, description } = googleBook.volumeInfo;
 
-    const isbn_10 = industryIdentifiers.find(
+    const googleId = googleBook.id;
+    const authors = googleBook.volumeInfo.authors.join(", ");
+    const publishedDate = new Date(googleBook.volumeInfo.publishedDate);
+    const thumbnail = googleBook.volumeInfo.imageLinks?.thumbnail;
+    const isbn10 = googleBook.volumeInfo.industryIdentifiers.find(
       (industryIdentifier: any) => industryIdentifier.type === "ISBN_10",
     )?.identifier;
-    const isbn_13 = industryIdentifiers.find(
+    const isbn13 = googleBook.volumeInfo.industryIdentifiers.find(
       (industryIdentifier: any) => industryIdentifier.type === "ISBN_13",
     )?.identifier;
 
-    const authorsString = authors.join(", ");
-
-    const thumbnail = imageLinks?.thumbnail;
+    const amazonId = openLibraryBook.identifiers?.amazon?.[0];
+    const lcId = openLibraryBook.lccn?.[0];
+    const oclcId = openLibraryBook.oclc_numbers?.[0];
+    const openLibraryId = openLibraryBook.key;
+    const deweyClassification = openLibraryBook.dewey_decimal_class?.[0];
+    const lcClassification = openLibraryBook.lc_classifications?.[0];
 
     const book = await prisma.book.create({
       data: {
         title,
         subtitle,
-        authors: authorsString,
-        publishedDate: new Date(publishedDate),
+        authors,
+        publishedDate,
         description,
-        scannedIsbn: isbn,
-        isbn10: isbn_10,
-        isbn13: isbn_13,
         thumbnail,
+        scannedIsbn: isbn,
+        isbn10,
+        isbn13,
+        amazonId,
+        googleId,
+        lcId,
+        oclcId,
+        openLibraryId,
+        deweyClassification,
+        lcClassification,
         isCheckedIn: true,
       },
     });
 
     response.status(201).json(book);
-
     sendBookEvent({ isbn });
   } catch (error) {
+    console.log(error);
+
     response
       .status(500)
       .json({ message: `Failed to add book with ISBN ${isbn}` });
