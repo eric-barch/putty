@@ -35,7 +35,6 @@ const dbListener = () => {
         cell.appendChild(img);
       } else if (className === "lcClassification") {
         const lcClassification = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
-        console.log("lcClassification", lcClassification);
         cell.textContent = lcClassification;
       } else {
         cell.textContent = value;
@@ -100,16 +99,13 @@ const dbListener = () => {
       /**If the book came from the database, it should either be updated in or
        * added to our displayed library. */
       try {
-        console.log("Trying to update book.");
         await updateBook(book);
       } catch {
-        console.log("Trying to add book.");
         await addBook(book);
       }
     } else {
       /**If the book did not come from the database, it came from the fallback
        * external API lookups. It should not be included in our displayed library. */
-      console.log("Trying to delete book.");
       await deleteBook(isbn);
     }
   };
