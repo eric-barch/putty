@@ -27,6 +27,9 @@ model Book {
   oclcId              String?   @unique
   openLibraryId       String?   @unique
   deweyClassification String?
-  lcClassification    String?
+  lcClass             String?
+  lcTopic             Float?
+  lcSubjectCutter     String?
+  lcAuthorCutter      String?
   isCheckedIn         Boolean
 }

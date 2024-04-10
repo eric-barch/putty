@@ -21,19 +21,24 @@ const dbListener = () => {
 
     newBookRow.setAttribute("data-isbn", isbn);
 
-    Object.entries(book).forEach(([key, value]) => {
-      const element = newBookRow.querySelector(`.${key}`);
+    const cells = newBookRow.querySelectorAll("td");
 
-      if (element) {
-        if (key === "thumbnail") {
-          const img = document.createElement("img");
-          img.src = value;
-          img.alt = `Book cover for ${book.title}`;
-          element.textContent = "";
-          element.appendChild(img);
-        } else {
-          element.textContent = value;
-        }
+    cells.forEach((cell) => {
+      const className = cell.className;
+      const value = book[className];
+
+      if (className === "thumbnail") {
+        const img = document.createElement("img");
+        img.src = value;
+        img.alt = `Book cover for ${book.title}`;
+        cell.textContent = "";
+        cell.appendChild(img);
+      } else if (className === "lcClassification") {
+        const lcClassification = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
+        console.log("lcClassification", lcClassification);
+        cell.textContent = lcClassification;
+      } else {
+        cell.textContent = value;
       }
     });
 
