@@ -1,8 +1,31 @@
+:root {
+  --red: #e63946;
+  --off-white: #f1faee;
+  --light-blue: #a8dadc;
+  --medium-blue: #a8dadc;
+  --dark-blue: #1d3557;
+}
+
+body {
+  margin: 0;
+  background-color: var(--off-white);
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  background-color: var(--red);
+  z-index: 500;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
 form#searchBookForm {
   display: flex;
   width: 70%;
-  margin: auto;
-  margin-bottom: 8px;
 }
 
 input#searchBookInput {
@@ -16,7 +39,9 @@ input#searchBookButton {
 }
 
 table {
+  background-color: white;
   margin: 0 auto;
+  margin-top: 4px;
   width: 70%;
   border-collapse: collapse;
   border: 1px solid #000000;
@@ -26,6 +51,14 @@ tbody > tr {
   height: 60px;
 }
 
+th,
+td {
+  text-align: left;
+  padding: 4px;
+  border: 1px solid #000000;
+  vertical-align: middle;
+}
+
 .thumbnail img {
   height: 50px;
   width: auto;
@@ -33,10 +66,31 @@ tbody > tr {
   margin: 0 auto;
 }
 
-th,
-td {
-  text-align: left;
-  padding: 4px;
-  border: 1px solid #000000;
-  vertical-align: middle;
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popup-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+}
+
+.popup-close-btn {
+  float: right;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
 }

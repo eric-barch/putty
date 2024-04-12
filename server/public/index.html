@@ -1,16 +1,21 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Library</title>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Putty</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <nav>
     <form id="searchBookForm">
-      <input id="searchBookInput" />
+      <input id="searchBookInput">
       <button type="submit" id="searchBookButton">Search</button>
     </form>
+  </nav>
+  <table>
     <table>
       <thead>
         <tr>
@@ -35,6 +40,25 @@
         </template>
       </tbody>
     </table>
-    <script src="js/index.js"></script>
-  </body>
+    <!-- Popup Overlay -->
+    <div id="popupOverlay" class="popup-overlay">
+      <div class="popup-card">
+        <div>
+          <span class="popup-close-btn" onclick="closePopup()">×</span>
+          <h3 id="popupTitle"></h3>
+          <p id="popupAuthors"></p>
+          <p id="popupDewey"></p>
+          <p id="popupLoC"></p>
+          <p id="popupCheckedIn"></p>
+        </div>
+        <div>
+            <button>Check Out</button>
+            <button>Update from APIs</button>
+            <button>Delete from Library</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="js/index.js"></script>
+</body>
+
 </html>

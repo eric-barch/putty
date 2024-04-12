@@ -1,3 +1,5 @@
+import { getHighlightedBookRow, setHighlightedBookRow } from "./global.js";
+
 const dbListener = () => {
   const bookTableBody = document.getElementById("bookTableBody");
   const bookRowTemplate = document.getElementById("bookRowTemplate");
@@ -33,6 +35,11 @@ const dbListener = () => {
         img.alt = `Book cover for ${book.title}`;
         cell.textContent = "";
         cell.appendChild(img);
+      } else if (className === "title") {
+        const a = document.createElement("a");
+        a.href = "javascript:void(0)";
+        a.textContent = book.title;
+        cell.appendChild(a);
       } else if (className === "lcClassification") {
         const lcClassification = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
         cell.textContent = lcClassification;
@@ -121,13 +128,79 @@ const formListener = () => {
     event.preventDefault();
 
     const isbn = searchBookInput.value;
-    searchBookInput.value = "";
+    console.log("isbn", isbn);
 
-    await fetch(`/api/v1/book/${isbn}`, {
-      method: "PUT",
-    });
+    const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
+
+    if (bookRow) {
+      console.log("Book exists.");
+
+      const highlightedBookRow = getHighlightedBookRow();
+
+      if (highlightedBookRow) {
+        highlightedBookRow.style.backgroundColor = "";
+      }
+
+      bookRow.style.backgroundColor = "lightyellow";
+      bookRow.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      setHighlightedBookRow(bookRow);
+    } else {
+      console.log("Adding book.");
+      await fetch(`/api/v1/book/${isbn}`, {
+        method: "PUT",
+      });
+    }
+
+    searchBookInput.value = "";
   });
 };
 
+const rowClickListener = () => {
+  const bookTableBody = document.getElementById("bookTableBody");
+
+  bookTableBody.addEventListener("click", function (event) {
+    let targetRow = event.target;
+
+    while (targetRow != this && !targetRow.hasAttribute("data-isbn")) {
+      targetRow = targetRow.parentNode;
+    }
+
+    if (!targetRow.hasAttribute("data-isbn")) return;
+
+    console.log("targetRow", targetRow);
+
+    const bookData = {
+      title: targetRow.querySelector(".title").textContent,
+      authors: targetRow.querySelector(".authors").textContent,
+      deweyClassification: targetRow.querySelector(".deweyClassification")
+        .textContent,
+      lcClassification:
+        targetRow.querySelector(".lcClassification").textContent,
+      isCheckedIn: targetRow.querySelector(".isCheckedIn").textContent,
+    };
+
+    showPopup(bookData);
+  });
+
+  const showPopup = (bookData) => {
+    document.getElementById("popupTitle").textContent = bookData.title;
+    document.getElementById("popupAuthors").textContent = bookData.authors;
+    document.getElementById("popupDewey").textContent =
+      `Dewey Classification: ${bookData.deweyClassification}`;
+    document.getElementById("popupLoC").textContent =
+      `Library of Congress Classification: ${bookData.lcClassification}`;
+    document.getElementById("popupCheckedIn").textContent =
+      `Checked In: ${bookData.isCheckedIn}`;
+
+    document.getElementById("popupOverlay").style.display = "flex";
+  };
+
+  window.closePopup = function () {
+    document.getElementById("popupOverlay").style.display = "none";
+  };
+};
+
+document.addEventListener("DOMContentLoaded", rowClickListener);
 document.addEventListener("DOMContentLoaded", dbListener);
 document.addEventListener("DOMContentLoaded", formListener);
