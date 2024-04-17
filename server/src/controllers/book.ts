@@ -248,7 +248,7 @@ const postBook = async (request: Request, response: Response) => {
     const data = await searchApis(isbn);
     const book = await prisma.book.create({ data });
     response.status(201).json(book);
-    sendBookEvent({ isbn });
+    sendBookEvent({ action: "post", isbn });
   } catch (error) {
     console.log(error);
     response
@@ -300,7 +300,7 @@ const putBook = async (request: Request, response: Response) => {
 
     response.status(200).json(book);
 
-    sendBookEvent({ isbn });
+    sendBookEvent({ action: "put", isbn });
   } catch {
     response.status(500).json({
       message: `Failed to update book with ISBN ${isbn}.`,
@@ -328,7 +328,7 @@ const deleteBook = async (request: Request, response: Response) => {
 
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
 
-    sendBookEvent({ isbn });
+    sendBookEvent({ action: "delete", isbn });
   } catch (error) {
     response
       .status(500)
