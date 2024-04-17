@@ -111,14 +111,31 @@ const deleteBookRow = async (isbn) => {
   bookRow.remove();
 };
 
+const showPopup = (book) => {
+  document.getElementById("popupTitle").textContent = book.title;
+  document.getElementById("popupAuthors").textContent = book.authors;
+  document.getElementById("popupDewey").textContent =
+    `Dewey Classification: ${book.deweyClassification}`;
+  document.getElementById("popupLoC").textContent =
+    `Library of Congress Classification: ${book.lcClassification}`;
+  document.getElementById("popupCheckedIn").textContent =
+    `Checked In: ${book.isCheckedIn}`;
+  document.getElementById("popupOverlay").style.display = "flex";
+};
+
+window.closePopup = function () {
+  document.getElementById("popupOverlay").style.display = "none";
+};
+
 const searchBook = async (event) => {
   event.preventDefault();
   const searchInput = document.getElementById("searchInput");
 
   const isbn = searchInput.value;
-  const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
 
-  if (bookRow) {
+  try {
+    const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
+
     const highlightedBookRow = getHighlightedBookRow();
     highlightedBookRow && (highlightedBookRow.style.backgroundColor = "");
 
@@ -126,9 +143,16 @@ const searchBook = async (event) => {
     bookRow.scrollIntoView({ behavior: "smooth", block: "center" });
 
     setHighlightedBookRow(bookRow);
-  } else {
+  } catch {
     const book = await getBook(isbn);
-    showPopup(book);
+
+    if (book.source === "db") {
+      throw new Error(
+        `Book with ISBN ${isbn} is in database but not displayed in table.`,
+      );
+    }
+
+    showPopup(book.book);
   }
 
   searchInput.value = "";
@@ -156,52 +180,30 @@ const bookEventListener = () => {
   };
 };
 
-const titleClickListener = () => {
-  const bookTableBody = document.getElementById("bookTableBody");
+const handleTitleClick = (event) => {
+  let targetRow = event.target;
 
-  bookTableBody.addEventListener("click", function (event) {
-    let targetRow = event.target;
+  while (targetRow != this && !targetRow.hasAttribute("data-isbn")) {
+    targetRow = targetRow.parentNode;
+  }
 
-    while (targetRow != this && !targetRow.hasAttribute("data-isbn")) {
-      targetRow = targetRow.parentNode;
-    }
+  if (!targetRow.hasAttribute("data-isbn")) return;
 
-    if (!targetRow.hasAttribute("data-isbn")) return;
-
-    console.log("targetRow", targetRow);
-
-    const bookData = {
-      title: targetRow.querySelector(".title").textContent,
-      authors: targetRow.querySelector(".authors").textContent,
-      deweyClassification: targetRow.querySelector(".deweyClassification")
-        .textContent,
-      lcClassification:
-        targetRow.querySelector(".lcClassification").textContent,
-      isCheckedIn: targetRow.querySelector(".isCheckedIn").textContent,
-    };
-
-    showPopup(bookData);
-  });
-
-  const showPopup = (bookData) => {
-    document.getElementById("popupTitle").textContent = bookData.title;
-    document.getElementById("popupAuthors").textContent = bookData.authors;
-    document.getElementById("popupDewey").textContent =
-      `Dewey Classification: ${bookData.deweyClassification}`;
-    document.getElementById("popupLoC").textContent =
-      `Library of Congress Classification: ${bookData.lcClassification}`;
-    document.getElementById("popupCheckedIn").textContent =
-      `Checked In: ${bookData.isCheckedIn}`;
-
-    document.getElementById("popupOverlay").style.display = "flex";
+  const book = {
+    title: targetRow.querySelector(".title").textContent,
+    authors: targetRow.querySelector(".authors").textContent,
+    deweyClassification: targetRow.querySelector(".deweyClassification")
+      .textContent,
+    lcClassification: targetRow.querySelector(".lcClassification").textContent,
+    isCheckedIn: targetRow.querySelector(".isCheckedIn").textContent,
   };
 
-  window.closePopup = function () {
-    document.getElementById("popupOverlay").style.display = "none";
-  };
+  showPopup(book);
 };
 
 createAllBookRows();
-document.getElementById("searchForm").addEventListener("submit", searchBook);
 document.addEventListener("DOMContentLoaded", bookEventListener);
-document.addEventListener("DOMContentLoaded", titleClickListener);
+document.getElementById("searchForm").addEventListener("submit", searchBook);
+document
+  .getElementById("bookTableBody")
+  .addEventListener("click", handleTitleClick);
