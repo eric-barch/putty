@@ -15,7 +15,7 @@ model Book {
   title               String
   subtitle            String?
   authors             String
-  publishedDate       DateTime?
+  publishDate         DateTime?
   description         String?
   thumbnail           String?
   scannedIsbn         String    @unique
@@ -25,7 +25,7 @@ model Book {
   googleId            String?   @unique
   lcId                String?   @unique
   oclcId              String?   @unique
-  openLibraryId       String?   @unique
+  openLibraryKey      String?   @unique
   deweyClassification String?
   lcClass             String?
   lcTopic             Float?

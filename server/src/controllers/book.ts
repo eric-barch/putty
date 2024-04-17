@@ -242,28 +242,26 @@ const createNewBook = async (isbn: string) => {
   const { lcClass, lcTopic, lcSubjectCutter, lcAuthorCutter } =
     parseLcClassification(lcClassification);
 
-  return await prisma.book.create({
-    data: {
-      title,
-      subtitle,
-      authors,
-      publishedDate: publishDate,
-      description,
-      thumbnail: thumbnailLink,
-      scannedIsbn: isbn,
-      isbn10,
-      isbn13,
-      googleId,
-      lcId: lccn,
-      openLibraryId: openLibraryKey,
-      lcClass,
-      lcTopic,
-      lcSubjectCutter,
-      lcAuthorCutter,
-      deweyClassification,
-      isCheckedIn: true,
-    },
-  });
+  return {
+    title,
+    subtitle,
+    authors,
+    publishDate,
+    description,
+    thumbnail,
+    scannedIsbn: isbn,
+    isbn10,
+    isbn13,
+    googleId,
+    lcId: lccn,
+    openLibraryKey,
+    lcClass,
+    lcTopic,
+    lcSubjectCutter,
+    lcAuthorCutter,
+    deweyClassification,
+    isCheckedIn: false,
+  };
 };
 
 const addBook = async (request: Request, response: Response) => {
