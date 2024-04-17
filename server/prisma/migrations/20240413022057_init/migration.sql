@@ -6,7 +6,7 @@ CREATE TABLE "Book" (
     "title" TEXT NOT NULL,
     "subtitle" TEXT,
     "authors" TEXT NOT NULL,
-    "publishedDate" TIMESTAMP(3),
+    "publishDate" TIMESTAMP(3),
     "description" TEXT,
     "thumbnail" TEXT,
     "scannedIsbn" TEXT NOT NULL,
@@ -16,9 +16,12 @@ CREATE TABLE "Book" (
     "googleId" TEXT,
     "lcId" TEXT,
     "oclcId" TEXT,
-    "openLibraryId" TEXT,
+    "openLibraryKey" TEXT,
     "deweyClassification" TEXT,
-    "lcClassification" TEXT,
+    "lcClass" TEXT,
+    "lcTopic" DOUBLE PRECISION,
+    "lcSubjectCutter" TEXT,
+    "lcAuthorCutter" TEXT,
     "isCheckedIn" BOOLEAN NOT NULL,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
@@ -46,4 +49,4 @@ CREATE UNIQUE INDEX "Book_lcId_key" ON "Book"("lcId");
 CREATE UNIQUE INDEX "Book_oclcId_key" ON "Book"("oclcId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Book_openLibraryId_key" ON "Book"("openLibraryId");
+CREATE UNIQUE INDEX "Book_openLibraryKey_key" ON "Book"("openLibraryKey");
