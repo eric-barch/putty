@@ -23,18 +23,18 @@ nav {
   padding-bottom: 16px;
 }
 
-form#searchBookForm {
+form#searchForm {
   display: flex;
   width: 70%;
 }
 
-input#searchBookInput {
+input#searchInput {
   flex-grow: 1;
   padding: 4px;
   margin-right: 8px;
 }
 
-input#searchBookButton {
+input#searchButton {
   padding: 4px;
 }
 
