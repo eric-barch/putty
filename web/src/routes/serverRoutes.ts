@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import http, { IncomingMessage } from "http";
+import { env } from "process";
 
 const requestFromServer = (req: Request, res: Response) => {
-  const hostname = "server";
-  const port = 3001;
+  const hostname = env.SERVER_HOST;
+  const port = env.SERVER_PORT;
 
   const options = {
     hostname,

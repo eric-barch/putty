@@ -41,7 +41,8 @@ services:
     build: ./web
     container_name: web
     environment:
-      SERVER_URL: ${SERVER_URL}
+      SERVER_HOST: ${SERVER_HOST}
+      SERVER_PORT: ${SERVER_PORT}
     ports:
       - "3000:3000"
     volumes:
