@@ -12,6 +12,8 @@ services:
       - "5432:5432"    
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dewey-network
 
   server:
     depends_on:
@@ -25,10 +27,30 @@ services:
       DB_NAME: ${DB_NAME}
       DATABASE_URL: ${DATABASE_URL}
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - ./server:/server
+    networks:
+      - dewey-network
     entrypoint: ["/bin/sh", "/server/entrypoint.sh"]
+
+  web:
+    depends_on:
+      - db
+      - server
+    build: ./web
+    container_name: web
+    environment:
+      SERVER_URL: ${SERVER_URL}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/web
+    networks:
+      - dewey-network
 
 volumes:
   postgres_data:
+
+networks:
+  dewey-network:

@@ -262,6 +262,8 @@ const getBookFromApis = async (isbn: string) => {
 const postBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
+  console.log("post request");
+
   try {
     const book = await getBookFromApis(isbn);
     response.status(201).json(book);

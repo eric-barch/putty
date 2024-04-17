@@ -1,7 +1,9 @@
 import { getHighlightedBookRow, setHighlightedBookRow } from "./global.js";
 
+const serverUrl = "http://server:3001";
+
 const getBook = async (isbn) => {
-  const response = await fetch(`/api/v1/book/${isbn}`, { method: "GET" });
+  const response = await fetch(`${serverUrl}/book/${isbn}`, { method: "GET" });
   const book = await response.json();
   return book;
 };
@@ -54,7 +56,7 @@ const createBookRow = (book) => {
 const createAllBookRows = async () => {
   const bookTableBody = document.getElementById("bookTableBody");
 
-  const response = await fetch("/api/v1/book", { method: "GET" });
+  const response = await fetch(`${serverUrl}/book`, { method: "GET" });
   const books = await response.json();
 
   books.forEach((book) => {
@@ -159,7 +161,7 @@ const searchBook = async (event) => {
 };
 
 const bookEventListener = () => {
-  const eventSource = new EventSource("/api/v1/book-events");
+  const eventSource = new EventSource(`${serverUrl}/book-events`);
 
   eventSource.onmessage = async (event) => {
     const { isbn, action } = JSON.parse(event.data);
