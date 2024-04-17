@@ -3,55 +3,44 @@ name: "dewey"
 services:
   db:
     image: postgres:latest
-    container_name: db
+    container_name: ${DB_HOST}
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"    
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - dewey-network
 
   server:
     depends_on:
-      - db
-    build: ./server
-    container_name: server
+      - ${DB_HOST}
+    build: "./${SERVER_HOST}"
+    container_name: ${SERVER_HOST}
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
-      DB_NAME: ${DB_NAME}
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}"
+      SERVER_PORT: ${SERVER_PORT}
     ports:
-      - "3001:3001"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
-      - ./server:/server
-    networks:
-      - dewey-network
-    entrypoint: ["/bin/sh", "/server/entrypoint.sh"]
+      - "./${SERVER_HOST}:/${SERVER_HOST}"
+    entrypoint: ["/bin/sh", "/${SERVER_HOST}/entrypoint.sh"]
 
   web:
     depends_on:
-      - db
-      - server
-    build: ./web
-    container_name: web
+      - ${DB_HOST}
+      - ${SERVER_HOST}
+    build: "./${WEB_HOST}"
+    container_name: ${WEB_HOST}
     environment:
       SERVER_HOST: ${SERVER_HOST}
       SERVER_PORT: ${SERVER_PORT}
+      WEB_PORT: ${WEB_PORT}
     ports:
-      - "3000:3000"
+      - "${WEB_PORT}:${WEB_PORT}"
     volumes:
-      - ./web:/web
-    networks:
-      - dewey-network
+      - "./${WEB_HOST}:/${WEB_HOST}"
 
 volumes:
   postgres_data:
-
-networks:
-  dewey-network:
