@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^20.12.2",
     "nodemon": "^3.1.0",
     "prisma": "^5.11.0",
@@ -21,8 +22,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
-    "@types/express": "^4.17.21",
-    "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.19.2"
   }
