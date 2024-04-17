@@ -27,12 +27,12 @@ const getBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const book = await getDbBook(isbn);
+    const book = await getBookFromDb(isbn);
     response.status(200).json({ source: "db", book });
   } catch (error) {
     try {
-      const book = await getGoogleBook(isbn);
-      response.status(200).json({ source: "googleBooks", book });
+      const book = await getBookFromApis(isbn);
+      response.status(200).json({ source: "apis", book });
     } catch {
       response
         .status(500)
@@ -41,7 +41,7 @@ const getBook = async (request: Request, response: Response) => {
   }
 };
 
-const getDbBook = async (isbn: string) => {
+const getBookFromDb = async (isbn: string) => {
   return await prisma.book.findFirstOrThrow({
     where: {
       OR: [{ scannedIsbn: isbn }, { isbn10: isbn }, { isbn13: isbn }],
@@ -49,7 +49,7 @@ const getDbBook = async (isbn: string) => {
   });
 };
 
-const getGoogleBook = async (isbn: string): Promise<GoogleBook> => {
+const getBookFromGoogle = async (isbn: string): Promise<GoogleBook> => {
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
   const response = await fetch(url);
   const data = await response.json();
@@ -83,7 +83,7 @@ const getGoogleBook = async (isbn: string): Promise<GoogleBook> => {
   };
 };
 
-const getOpenLibraryBook = async (isbn: string): Promise<OpenLibraryBook> => {
+const getBookFromOl = async (isbn: string): Promise<OpenLibraryBook> => {
   const url = `https://openlibrary.org/isbn/${isbn}.json`;
   const response = await fetch(url);
   const book = await response.json();
@@ -113,7 +113,7 @@ const getOpenLibraryBook = async (isbn: string): Promise<OpenLibraryBook> => {
   };
 };
 
-const getLcBook = async (isbn: string): Promise<LcBook> => {
+const getBookFromLc = async (isbn: string): Promise<LcBook> => {
   const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${isbn}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
   const response = await fetch(url);
   const data = await response.text();
@@ -149,6 +149,7 @@ const getLcBook = async (isbn: string): Promise<LcBook> => {
   };
 };
 
+/**TODO: Horrible. */
 const parseLcClassification = (lcClassification: string | undefined) => {
   const result: {
     lcClass: string | undefined;
@@ -207,34 +208,28 @@ const parseLcClassification = (lcClassification: string | undefined) => {
   return result;
 };
 
-const createNewBook = async (isbn: string) => {
-  const [googleBook, lcBook, openLibraryBook] = await Promise.all([
-    getGoogleBook(isbn),
-    getLcBook(isbn),
-    getOpenLibraryBook(isbn),
+const getBookFromApis = async (isbn: string) => {
+  const [googleBook, lcBook, olBook] = await Promise.all([
+    getBookFromGoogle(isbn),
+    getBookFromLc(isbn),
+    getBookFromOl(isbn),
   ]);
 
-  console.log("googleBook", googleBook);
-  console.log("lcBook", lcBook);
-  console.log("openLibraryBook", openLibraryBook);
-
-  const title = googleBook.title || lcBook.title || openLibraryBook.title;
-  const subtitle =
-    googleBook.subtitle || lcBook.subtitle || openLibraryBook.subtitle;
+  const title = googleBook.title || lcBook.title || olBook.title;
+  const subtitle = googleBook.subtitle || lcBook.subtitle || olBook.subtitle;
   const authors = googleBook.authors || lcBook.authors;
   const publishDate =
-    googleBook.publishDate || lcBook.publishDate || openLibraryBook.publishDate;
+    googleBook.publishDate || lcBook.publishDate || olBook.publishDate;
   const description = googleBook.description;
-  const thumbnailLink = googleBook.thumbnailLink;
-  const isbn10 = googleBook.isbn10 || openLibraryBook.isbn10;
-  const isbn13 = googleBook.isbn13 || openLibraryBook.isbn13;
+  const thumbnail = googleBook.thumbnailLink;
+  const isbn10 = googleBook.isbn10 || olBook.isbn10;
+  const isbn13 = googleBook.isbn13 || olBook.isbn13;
   const googleId = googleBook.googleId;
   const lccn = lcBook.lccn;
-  const openLibraryKey = openLibraryBook.openLibraryKey;
-  const lcClassification =
-    lcBook.lcClassification || openLibraryBook.lcClassification;
+  const openLibraryKey = olBook.openLibraryKey;
+  const lcClassification = lcBook.lcClassification || olBook.lcClassification;
   const deweyClassification =
-    lcBook.deweyClassification || openLibraryBook.deweyClassification;
+    lcBook.deweyClassification || olBook.deweyClassification;
 
   if (!title) throw new Error("title is required.");
   if (!authors) throw new Error("authors is required.");
@@ -264,11 +259,11 @@ const createNewBook = async (isbn: string) => {
   };
 };
 
-const addBook = async (request: Request, response: Response) => {
+const postBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
   try {
-    const book = await createNewBook(isbn);
+    const book = await getBookFromApis(isbn);
     response.status(201).json(book);
     sendBookEvent({ isbn });
   } catch (error) {
@@ -279,7 +274,7 @@ const addBook = async (request: Request, response: Response) => {
   }
 };
 
-const updateBook = async (request: Request, response: Response) => {
+const putBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
   const data = request.body;
 
@@ -340,4 +335,4 @@ const deleteBook = async (request: Request, response: Response) => {
   }
 };
 
-export { addBook, deleteBook, getAllBooks, getBook, updateBook };
+export { postBook, deleteBook, getAllBooks, getBook, putBook };
