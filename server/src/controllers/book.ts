@@ -6,42 +6,7 @@ import { GoogleBook, LcBook, OpenLibraryBook } from "./book.types";
 
 const prisma = new PrismaClient();
 
-const getAllBooks = async (request: Request, response: Response) => {
-  try {
-    const books = await prisma.book.findMany({
-      orderBy: [
-        { lcClass: "asc" },
-        { lcTopic: "asc" },
-        { lcSubjectCutter: "asc" },
-        { lcAuthorCutter: "asc" },
-      ],
-    });
-
-    response.status(200).json(books);
-  } catch (error) {
-    response.status(500).json({ error: "Failed to get all books." });
-  }
-};
-
-const getBook = async (request: Request, response: Response) => {
-  const { isbn } = request.params;
-
-  try {
-    const book = await getBookFromDb(isbn);
-    response.status(200).json({ source: "db", book });
-  } catch (error) {
-    try {
-      const book = await getBookFromApis(isbn);
-      response.status(200).json({ source: "apis", book });
-    } catch {
-      response
-        .status(500)
-        .json({ message: `Failed to get book with ISBN ${isbn}` });
-    }
-  }
-};
-
-const getBookFromDb = async (isbn: string) => {
+const searchDb = async (isbn: string) => {
   return await prisma.book.findFirstOrThrow({
     where: {
       OR: [{ scannedIsbn: isbn }, { isbn10: isbn }, { isbn13: isbn }],
@@ -49,7 +14,7 @@ const getBookFromDb = async (isbn: string) => {
   });
 };
 
-const getBookFromGoogle = async (isbn: string): Promise<GoogleBook> => {
+const searchGoogleBooks = async (isbn: string): Promise<GoogleBook> => {
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
   const response = await fetch(url);
   const data = await response.json();
@@ -83,7 +48,7 @@ const getBookFromGoogle = async (isbn: string): Promise<GoogleBook> => {
   };
 };
 
-const getBookFromOl = async (isbn: string): Promise<OpenLibraryBook> => {
+const searchOpenLibrary = async (isbn: string): Promise<OpenLibraryBook> => {
   const url = `https://openlibrary.org/isbn/${isbn}.json`;
   const response = await fetch(url);
   const book = await response.json();
@@ -113,7 +78,7 @@ const getBookFromOl = async (isbn: string): Promise<OpenLibraryBook> => {
   };
 };
 
-const getBookFromLc = async (isbn: string): Promise<LcBook> => {
+const searchLibraryOfCongress = async (isbn: string): Promise<LcBook> => {
   const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${isbn}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
   const response = await fetch(url);
   const data = await response.text();
@@ -208,11 +173,11 @@ const parseLcClassification = (lcClassification: string | undefined) => {
   return result;
 };
 
-const getBookFromApis = async (isbn: string) => {
+const searchApis = async (isbn: string) => {
   const [googleBook, lcBook, olBook] = await Promise.all([
-    getBookFromGoogle(isbn),
-    getBookFromLc(isbn),
-    getBookFromOl(isbn),
+    searchGoogleBooks(isbn),
+    searchLibraryOfCongress(isbn),
+    searchOpenLibrary(isbn),
   ]);
 
   const title = googleBook.title || lcBook.title || olBook.title;
@@ -259,13 +224,29 @@ const getBookFromApis = async (isbn: string) => {
   };
 };
 
+const getAllDbBooks = async (request: Request, response: Response) => {
+  try {
+    const books = await prisma.book.findMany({
+      orderBy: [
+        { lcClass: "asc" },
+        { lcTopic: "asc" },
+        { lcSubjectCutter: "asc" },
+        { lcAuthorCutter: "asc" },
+      ],
+    });
+
+    response.status(200).json(books);
+  } catch (error) {
+    response.status(500).json({ error: "Failed to get all database books." });
+  }
+};
+
 const postBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
-  console.log("post request");
-
   try {
-    const book = await getBookFromApis(isbn);
+    const data = await searchApis(isbn);
+    const book = await prisma.book.create({ data });
     response.status(201).json(book);
     sendBookEvent({ isbn });
   } catch (error) {
@@ -273,6 +254,24 @@ const postBook = async (request: Request, response: Response) => {
     response
       .status(500)
       .json({ message: `Failed to add book with ISBN ${isbn}` });
+  }
+};
+
+const getBook = async (request: Request, response: Response) => {
+  const { isbn } = request.params;
+
+  try {
+    const book = await searchDb(isbn);
+    response.status(200).json({ source: "db", book });
+  } catch (error) {
+    try {
+      const book = await searchApis(isbn);
+      response.status(200).json({ source: "apis", book });
+    } catch {
+      response
+        .status(500)
+        .json({ message: `Failed to search for book with ISBN ${isbn}` });
+    }
   }
 };
 
@@ -337,4 +336,4 @@ const deleteBook = async (request: Request, response: Response) => {
   }
 };
 
-export { postBook, deleteBook, getAllBooks, getBook, putBook };
+export { getAllDbBooks, getBook, postBook, deleteBook, putBook };

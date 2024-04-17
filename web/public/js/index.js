@@ -12,7 +12,7 @@ const postBook = async (isbn) => {};
 
 const putBook = async (isbn) => {};
 
-const deleteBook = async (isbn) => {};
+const deleteRow = async (isbn) => {};
 
 const createBookRow = (book) => {
   const bookRow = document
@@ -65,8 +65,8 @@ const createAllBookRows = async () => {
   });
 };
 
-const insertBookRow = async (isbn) => {
-  const book = getBook(isbn);
+const insertRow = async (isbn) => {
+  const { book } = await getBook(isbn);
   const newBookRow = createBookRow(book);
 
   const bookRows = bookTableBody.querySelectorAll("tr[data-isbn]");
@@ -84,7 +84,7 @@ const insertBookRow = async (isbn) => {
   bookTableBody.appendChild(newBookRow);
 };
 
-const updateBookRow = async (isbn) => {
+const updateRow = async (isbn) => {
   const book = getBook(isbn);
   const bookRow = bookTableBody.querySelector(
     `tr[data-isbn="${book.scannedIsbn}"]`,
@@ -100,7 +100,7 @@ const updateBookRow = async (isbn) => {
 
   if (lcClassification !== book.lcClassification) {
     bookRow.remove();
-    await insertBookRow(isbn);
+    await insertRow(isbn);
   } else {
     /**Classification hasn't changed. No need to re-sort. */
     const newBookRow = createBookRow(book);
@@ -167,14 +167,14 @@ const bookEventListener = () => {
     const { isbn, action } = JSON.parse(event.data);
 
     switch (action) {
-      case "insertBookRow":
-        await insertBookRow(isbn);
+      case "post":
+        await insertRow(isbn);
         break;
-      case "updateBookRow":
-        await updateBookRow(isbn);
+      case "put":
+        await updateRow(isbn);
         break;
-      case "deleteBookRow":
-        await deleteBook(isbn);
+      case "delete":
+        await deleteRow(isbn);
         break;
       default:
         throw new Error(`Unrecognized action: ${action}`);
