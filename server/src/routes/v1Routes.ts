@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
-  addBook,
+  postBook,
   deleteBook,
   getAllBooks,
   getBook,
-  updateBook,
+  putBook,
 } from "@/controllers/book";
 import { getBookEvents } from "@/controllers/events";
 
@@ -12,8 +12,8 @@ const routes = Router();
 
 routes.get("/book", getAllBooks);
 routes.get("/book/:isbn", getBook);
-routes.put("/book/:isbn", addBook);
-routes.patch("/book/:isbn", updateBook);
+routes.put("/book/:isbn", postBook);
+routes.patch("/book/:isbn", putBook);
 routes.delete("/book/:isbn", deleteBook);
 
 routes.get("/book-events", getBookEvents);
