@@ -1,21 +1,19 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Putty</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Putty</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-
-<body>
-  <nav>
-    <form id="searchForm">
-      <input id="searchInput">
-      <button type="submit" id="searchBookButton">Search</button>
-    </form>
-  </nav>
-  <table>
+  <body>
+    <nav>
+      <form id="searchForm">
+        <input id="searchInput" />
+        <button type="submit" id="searchBookButton">Search</button>
+      </form>
+    </nav>
     <table>
       <thead>
         <tr>
@@ -40,7 +38,6 @@
         </template>
       </tbody>
     </table>
-    <!-- Popup Overlay -->
     <div id="popupOverlay" class="popup-overlay">
       <div class="popup-card">
         <div>
@@ -59,6 +56,5 @@
       </div>
     </div>
     <script type="module" src="js/index.js"></script>
-</body>
-
+  </body>
 </html>
