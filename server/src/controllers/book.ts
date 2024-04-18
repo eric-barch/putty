@@ -78,11 +78,7 @@ const searchOpenLibrary = async (isbn: string): Promise<OpenLibraryBook> => {
   };
 };
 
-const searchLibraryOfCongress = async (isbn: string): Promise<LcBook> => {
-  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${isbn}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
-  const response = await fetch(url);
-  const data = await response.text();
-
+const parseLcResponse = (data: any) => {
   const $ = cheerio.load(data);
 
   const lccn = $('identifier[type="lccn"]').text() || undefined;
@@ -112,6 +108,21 @@ const searchLibraryOfCongress = async (isbn: string): Promise<LcBook> => {
     lcClassification,
     deweyClassification,
   };
+};
+
+const searchLcByIsbn = async (isbn: string): Promise<LcBook> => {
+  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${isbn}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
+  const response = await fetch(url);
+  const data = await response.text();
+  return parseLcResponse(data);
+};
+
+const searchLcByTitleAndAuthor = async (book: GoogleBook) => {
+  const authorLastName = book.authors?.split(" ").pop();
+  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.title="${book.title}" and bath.author="${authorLastName}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
+  const response = await fetch(url);
+  const data = await response.text();
+  return parseLcResponse(data);
 };
 
 /**TODO: Horrible. */
@@ -174,11 +185,19 @@ const parseLcClassification = (lcClassification: string | undefined) => {
 };
 
 const searchApis = async (isbn: string) => {
-  const [googleBook, lcBook, olBook] = await Promise.all([
+  let [googleBook, lcBook, olBook] = await Promise.all([
     searchGoogleBooks(isbn),
-    searchLibraryOfCongress(isbn),
+    searchLcByIsbn(isbn),
     searchOpenLibrary(isbn),
   ]);
+
+  console.log("lcBook by isbn", lcBook);
+
+  if (!lcBook.lccn) {
+    lcBook = await searchLcByTitleAndAuthor(googleBook);
+  }
+
+  console.log("lcBook by title and author", lcBook);
 
   const title = googleBook.title || lcBook.title || olBook.title;
   const subtitle = googleBook.subtitle || lcBook.subtitle || olBook.subtitle;
