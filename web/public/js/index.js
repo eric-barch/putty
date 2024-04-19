@@ -185,10 +185,10 @@ const searchBook = async (event) => {
   event.preventDefault();
   const searchInput = document.getElementById("searchInput");
 
-  const isbn = searchInput.value;
+  const query = searchInput.value;
 
   try {
-    const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
+    const bookRow = document.querySelector(`tr[data-isbn="${query}"]`);
 
     const highlightedBookRow = getHighlightedBookRow();
     highlightedBookRow && (highlightedBookRow.style.backgroundColor = "");
@@ -198,11 +198,11 @@ const searchBook = async (event) => {
 
     setHighlightedBookRow(bookRow);
   } catch {
-    const book = await getBook(isbn);
+    const book = await getBook(query);
 
     if (book.source === "db") {
       throw new Error(
-        `Book with ISBN ${isbn} is in database but not displayed in table.`,
+        `Book with ISBN ${query} is in database but not displayed in table.`,
       );
     }
 
