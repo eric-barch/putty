@@ -2,7 +2,6 @@ import { Book, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { sendBookEvent } from "./events";
 import * as cheerio from "cheerio";
-import { GoogleBook, LcBook, OpenLibraryBook } from "./book.types";
 import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
 import { searchGoogleBooks } from "./googleBooks.helpers";
 import { searchOpenLibrary } from "./openLibrary.helpers";
@@ -72,10 +71,11 @@ const searchApis = async (isbn: string) => {
     googleId,
     lcId: lccn,
     openLibraryKey,
-    lcClass,
-    lcTopic,
-    lcSubjectCutter,
-    lcAuthorCutter,
+    lcClass: lcClassification?.class,
+    lcTopic: lcClassification?.topic,
+    lcSubjectCutter: lcClassification?.subjectCutter,
+    lcAuthorCutter: lcClassification?.authorCutter,
+    lcYear: lcClassification?.year || 1,
     deweyClassification,
     isCheckedIn: false,
   };

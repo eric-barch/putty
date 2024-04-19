@@ -2,7 +2,7 @@ type GoogleBook = {
   googleId: string | undefined;
   title: string | undefined;
   subtitle: string | undefined;
-  authors: string | undefined;
+  authors: string[] | undefined;
   description: string | undefined;
   publishDate: Date | undefined;
   isbn10: string | undefined;
@@ -19,7 +19,7 @@ type OpenLibraryBook = {
   isbn10: string | undefined;
   isbn13: string | undefined;
   lccn: string | undefined;
-  lcClassification: string | undefined;
+  lcClassification: LcClassification | undefined;
   deweyClassification: string | undefined;
 };
 
@@ -27,10 +27,18 @@ type LcBook = {
   lccn: string | undefined;
   title: string | undefined;
   subtitle: string | undefined;
-  authors: string | undefined;
+  authors: string[] | undefined;
   publishDate: Date | undefined;
-  lcClassification: string | undefined;
+  lcClassification: LcClassification | undefined;
   deweyClassification: string | undefined;
 };
 
-export { GoogleBook, OpenLibraryBook, LcBook };
+type LcClassification = {
+  class: string | undefined;
+  topic: number | undefined;
+  subjectCutter: string | undefined;
+  authorCutter: string | undefined;
+  year: number | undefined;
+};
+
+export { GoogleBook, OpenLibraryBook, LcBook, LcClassification };
