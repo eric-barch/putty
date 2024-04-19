@@ -18,18 +18,16 @@ model Book {
   publishDate         DateTime?
   description         String?
   thumbnail           String?
-  scannedIsbn         String    @unique
   isbn10              String?   @unique
   isbn13              String?   @unique
-  amazonId            String?   @unique
   googleId            String?   @unique
-  lcId                String?   @unique
-  oclcId              String?   @unique
+  lccn                String?   @unique
   openLibraryKey      String?   @unique
   deweyClassification String?
   lcClass             String?
   lcTopic             Float?
   lcSubjectCutter     String?
   lcAuthorCutter      String?
+  lcYear              Int?
   isCheckedIn         Boolean
 }
