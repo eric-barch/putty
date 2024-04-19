@@ -113,20 +113,64 @@ const deleteBookRow = async (isbn) => {
   bookRow.remove();
 };
 
-const showPopup = (book) => {
-  document.getElementById("popupTitle").textContent = book.title;
-  document.getElementById("popupAuthors").textContent = book.authors;
-  document.getElementById("popupDewey").textContent =
-    `Dewey Classification: ${book.deweyClassification}`;
-  document.getElementById("popupLoC").textContent =
-    `Library of Congress Classification: ${book.lcClassification}`;
-  document.getElementById("popupCheckedIn").textContent =
-    `Checked In: ${book.isCheckedIn}`;
-  document.getElementById("popupOverlay").style.display = "flex";
+const openPopup = async (book) => {
+  const response = await fetch("popup.html");
+  const popupHtml = await response.text();
+
+  /** Create a DOM node from the fetched HTML string. */
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(popupHtml, "text/html");
+  const popupNode = doc.body.firstChild;
+
+  /** Set content of elements within the popup. */
+  popupNode.querySelector("#popupTitle").textContent = book.details.title;
+  popupNode.querySelector("#popupAuthors").textContent = book.details.authors;
+  popupNode.querySelector("#popupDewey").textContent =
+    `Dewey Classification: ${book.details.deweyClassification}`;
+  popupNode.querySelector("#popupLoC").textContent =
+    `Library of Congress Classification: ${book.details.lcClassification}`;
+  popupNode.querySelector("#popupCheckedIn").textContent =
+    `Checked In: ${book.details.isCheckedIn}`;
+
+  /** Determine which buttons to add based on book source and check-in status. */
+  const buttonContainer = popupNode.querySelector("#buttonContainer");
+  const isInLibrary = book.source === "db";
+
+  if (isInLibrary) {
+    if (book.details.isCheckedIn) {
+      const checkOutButton = document.createElement("button");
+      checkOutButton.id = "checkOutButton";
+      checkOutButton.textContent = "Check Out";
+      buttonContainer.appendChild(checkOutButton);
+    } else {
+      const checkInButton = document.createElement("button");
+      checkInButton.id = "checkInButton";
+      checkInButton.textContent = "Check In";
+      buttonContainer.appendChild(checkInButton);
+    }
+    const deleteButton = document.createElement("button");
+    deleteButton.id = "deleteButton";
+    deleteButton.textContent = "Delete from Library";
+    buttonContainer.appendChild(deleteButton);
+  } else {
+    const postButton = document.createElement("button");
+    postButton.id = "postButton";
+    postButton.textContent = "Add to Library";
+    buttonContainer.appendChild(postButton);
+    postButton.addEventListener("click", () => postBook(book));
+  }
+
+  /** Append popup node to body and make it visible. */
+  document.body.appendChild(popupNode);
+  popupNode.style.display = "flex";
 };
 
 window.closePopup = () => {
-  document.getElementById("popupOverlay").style.display = "none";
+  const popup = document.getElementById("popupOverlay");
+
+  if (popup) {
+    popup.remove();
+  }
 };
 
 const searchBook = async (event) => {
@@ -154,7 +198,7 @@ const searchBook = async (event) => {
       );
     }
 
-    showPopup(book.book);
+    openPopup(book);
   }
 
   searchInput.value = "";
@@ -200,7 +244,7 @@ const handleTitleClick = (event) => {
     isCheckedIn: targetRow.querySelector(".isCheckedIn").textContent,
   };
 
-  showPopup(book);
+  openPopup(book);
 };
 
 document.addEventListener("DOMContentLoaded", bookEventListener);
