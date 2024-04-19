@@ -12,7 +12,7 @@ const routes = Router();
 
 routes.get("/book", getAllDbBooks);
 routes.post("/book/:isbn", postBook);
-routes.get("/book/:isbn", getBook);
+routes.get("/book/:query", getBook);
 routes.put("/book/:isbn", putBook);
 routes.delete("/book/:isbn", deleteBook);
 
