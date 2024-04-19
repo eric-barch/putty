@@ -203,9 +203,10 @@ const handleTitleClick = (event) => {
   showPopup(book);
 };
 
-createAllBookRows();
 document.addEventListener("DOMContentLoaded", bookEventListener);
 document.getElementById("searchForm").addEventListener("submit", searchBook);
 document
   .getElementById("bookTableBody")
   .addEventListener("click", handleTitleClick);
+
+createAllBookRows();
