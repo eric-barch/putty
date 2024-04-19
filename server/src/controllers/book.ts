@@ -3,6 +3,9 @@ import { Request, Response } from "express";
 import { sendBookEvent } from "./events";
 import * as cheerio from "cheerio";
 import { GoogleBook, LcBook, OpenLibraryBook } from "./book.types";
+import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
+import { searchGoogleBooks } from "./googleBooks.helpers";
+import { searchOpenLibrary } from "./openLibrary.helpers";
 
 const prisma = new PrismaClient();
 
@@ -14,175 +17,10 @@ const searchDb = async (isbn: string) => {
   });
 };
 
-const searchGoogleBooks = async (isbn: string): Promise<GoogleBook> => {
-  const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
-  const response = await fetch(url);
-  const data = await response.json();
-  const book = data.items[0];
-  const bookInfo = book.volumeInfo;
+const searchApis = async (query: string) => {
+  const googleBook = await searchGoogleBooks(query);
 
-  const googleId = book.id;
-  const title = bookInfo.title;
-  const subtitle = bookInfo.subtitle;
-  const authors = bookInfo.authors?.join(", ");
-  const description = bookInfo.description;
-  const publishDate = new Date(bookInfo.publishedDate);
-  const isbn10 = bookInfo.industryIdentifiers.find(
-    (id: any) => id.type === "ISBN_10",
-  )?.identifier;
-  const isbn13 = bookInfo.industryIdentifiers.find(
-    (id: any) => id.type === "ISBN_13",
-  )?.identifier;
-  const thumbnailLink = bookInfo.imageLinks?.thumbnail;
-
-  return {
-    title,
-    subtitle,
-    authors,
-    description,
-    publishDate,
-    isbn10,
-    isbn13,
-    googleId,
-    thumbnailLink,
-  };
-};
-
-const searchOpenLibrary = async (isbn: string): Promise<OpenLibraryBook> => {
-  const url = `https://openlibrary.org/isbn/${isbn}.json`;
-  const response = await fetch(url);
-  const book = await response.json();
-
-  const title = book.title;
-  const subtitle = book.subtitle;
-  const description = book.description?.value;
-  const publishDate = new Date(book.publish_date);
-  const isbn10 = book.isbn_10?.[0];
-  const isbn13 = book.isbn_13?.[0];
-  const openLibraryKey = book.key;
-  const lccn = book.lccn?.[0];
-  const lcClassification = book.lc_classifications?.[0];
-  const deweyClassification = book.dewey_decimal_class?.[0];
-
-  return {
-    title,
-    subtitle,
-    description,
-    publishDate,
-    isbn10,
-    isbn13,
-    openLibraryKey,
-    lccn,
-    lcClassification,
-    deweyClassification,
-  };
-};
-
-const parseLcResponse = (data: any) => {
-  const $ = cheerio.load(data);
-
-  const lccn = $('identifier[type="lccn"]').text() || undefined;
-  const title = $("title").text() || undefined;
-  const subtitle = $("subtitle").text() || undefined;
-  const authors =
-    $('name[type="personal"][usage="primary"]')
-      .map((i, el) => {
-        return $(el).find("namePart").text();
-      })
-      .get()
-      .join(", ") || undefined;
-  const publishDate = $('dateIssued[encoding="marc"]')
-    ? new Date($('dateIssued[encoding="marc"]').text())
-    : undefined;
-  const lcClassification =
-    $('classification[authority="lcc"]').text() || undefined;
-  const deweyClassification =
-    $('classification[authority="ddc"]').text() || undefined;
-
-  return {
-    lccn,
-    title,
-    subtitle,
-    authors,
-    publishDate,
-    lcClassification,
-    deweyClassification,
-  };
-};
-
-const searchLcByIsbn = async (isbn: string): Promise<LcBook> => {
-  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${isbn}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
-  const response = await fetch(url);
-  const data = await response.text();
-  return parseLcResponse(data);
-};
-
-const searchLcByTitleAndAuthor = async (book: GoogleBook) => {
-  const authorLastName = book.authors?.split(" ").pop();
-  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.title="${book.title}" and bath.author="${authorLastName}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
-  const response = await fetch(url);
-  const data = await response.text();
-  return parseLcResponse(data);
-};
-
-/**TODO: Horrible. */
-const parseLcClassification = (lcClassification: string | undefined) => {
-  const result: {
-    lcClass: string | undefined;
-    lcTopic: number | undefined;
-    lcSubjectCutter: string | undefined;
-    lcAuthorCutter: string | undefined;
-    lcYear: number | undefined;
-  } = {
-    lcClass: undefined,
-    lcTopic: undefined,
-    lcSubjectCutter: undefined,
-    lcAuthorCutter: undefined,
-    lcYear: undefined,
-  };
-
-  if (!lcClassification) return result;
-
-  const patterns = {
-    lcClass: /^\s*[A-Z]+/i,
-    lcTopic: /\d+(\.\d+)?/,
-    subjectCutter: /^\s*\.?[A-Z]\d+/i,
-    authorCutter: /^\s*\.?[A-Z]\d+/i,
-    lcYear: /\d{4}/,
-  };
-
-  const extractComponent = (pattern: RegExp, remaining: string) => {
-    const match = remaining.match(pattern);
-    return match ? match[0] : undefined;
-  };
-
-  let remaining = lcClassification;
-
-  const lcClass = extractComponent(patterns.lcClass, remaining);
-  result.lcClass = lcClass;
-  remaining = lcClass ? remaining.slice(lcClass.length).trim() : remaining;
-
-  const lcTopic = extractComponent(patterns.lcTopic, remaining);
-  result.lcTopic = Number(lcTopic);
-  remaining = lcTopic ? remaining.slice(lcTopic.length).trim() : remaining;
-
-  const lcSubjectCutter = extractComponent(patterns.subjectCutter, remaining);
-  result.lcSubjectCutter = lcSubjectCutter;
-  remaining = lcSubjectCutter
-    ? remaining.slice(lcSubjectCutter.length).trim()
-    : remaining;
-
-  const lcAuthorCutter = extractComponent(patterns.authorCutter, remaining);
-  result.lcAuthorCutter = lcAuthorCutter;
-  remaining = lcAuthorCutter
-    ? remaining.slice(lcAuthorCutter.length).trim()
-    : remaining;
-
-  const lcYear = extractComponent(patterns.lcYear, remaining);
-  result.lcYear = Number(lcYear);
-
-  return result;
-};
+  if (!googleBook) return undefined;
 
 const searchApis = async (isbn: string) => {
   let [googleBook, lcBook, olBook] = await Promise.all([
