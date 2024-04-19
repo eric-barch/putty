@@ -125,7 +125,7 @@ const showPopup = (book) => {
   document.getElementById("popupOverlay").style.display = "flex";
 };
 
-window.closePopup = function () {
+window.closePopup = () => {
   document.getElementById("popupOverlay").style.display = "none";
 };
 
