@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { GoogleBook, LcBook, LcClassification } from "./book.types";
+import { GoogleBook, LcBook, LcClassification } from "./types";
 
 const parseLcClassification = (
   str: string | undefined,
@@ -42,8 +42,6 @@ const parseLcClassification = (
 const queryLibraryOfCongress = async (
   url: string,
 ): Promise<LcBook | undefined> => {
-  console.log("lcUrl", url);
-
   const response = await fetch(url);
 
   if (!response.ok) return undefined;
@@ -85,9 +83,14 @@ const queryLibraryOfCongress = async (
 const searchLibraryOfCongress = async (
   googleBook: GoogleBook,
 ): Promise<LcBook | undefined> => {
+  const firstAuthor = googleBook.authors?.[0] || "";
+  const lastNamePattern =
+    /(\b\w+\b)(?:\s*(?:\(|\[)?(?:Jr\.|Sr\.|III|II|IV)(?:\)|\])?)?$/i;
+  const match = lastNamePattern.exec(firstAuthor);
+  const firstAuthorLastName = match ? match[1] : "";
+
   const isbn13Url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${googleBook.isbn13}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
   const isbn10Url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.isbn="${googleBook.isbn10}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
-  const firstAuthorLastName = googleBook.authors?.[0].split(" ").pop() || "";
   const titleAndAuthorUrl = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=bath.title="${googleBook.title}" and bath.author="${firstAuthorLastName}"&startRecord=1&maximumRecords=1&recordSchema=mods`;
 
   const [isbn13Book, isbn10Book, titleAndAuthorBook] = await Promise.all([
@@ -96,11 +99,43 @@ const searchLibraryOfCongress = async (
     queryLibraryOfCongress(titleAndAuthorUrl),
   ]);
 
-  const lcBook = isbn13Book || isbn10Book || titleAndAuthorBook;
+  if (isbn13Book) console.log("lcIsbn13Book", isbn13Book);
+  if (isbn10Book) console.log("lcIsbn10Book", isbn10Book);
+  if (titleAndAuthorBook)
+    console.log("lcTitleAndAuthorBook", titleAndAuthorBook);
 
-  console.log("lcBook", lcBook);
+  const lcBook = {
+    lccn: isbn13Book?.lccn || isbn10Book?.lccn || titleAndAuthorBook?.lccn,
+    title: isbn13Book?.title || isbn10Book?.title || titleAndAuthorBook?.title,
+    subtitle:
+      isbn13Book?.subtitle ||
+      isbn10Book?.subtitle ||
+      titleAndAuthorBook?.subtitle,
+    authors:
+      isbn13Book?.authors || isbn10Book?.authors || titleAndAuthorBook?.authors,
+    publishDate:
+      isbn13Book?.publishDate ||
+      isbn10Book?.publishDate ||
+      titleAndAuthorBook?.publishDate,
+    lcClassification:
+      isbn13Book?.lcClassification ||
+      isbn10Book?.lcClassification ||
+      titleAndAuthorBook?.lcClassification,
+    deweyClassification:
+      isbn13Book?.deweyClassification ||
+      isbn10Book?.deweyClassification ||
+      titleAndAuthorBook?.deweyClassification,
+  };
 
-  return lcBook;
+  const allUndefined = Object.values(lcBook).every(
+    (value) => !value || (Array.isArray(value) && value.length === 0),
+  );
+
+  allUndefined
+    ? console.log("lcBook", undefined)
+    : console.log("lcBook", lcBook);
+
+  return allUndefined ? undefined : lcBook;
 };
 
 export { searchLibraryOfCongress };

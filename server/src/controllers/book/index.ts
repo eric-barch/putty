@@ -1,6 +1,6 @@
 import { Book, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { sendBookEvent } from "./events";
+import { sendBookEvent } from "../events";
 import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
 import { searchGoogleBooks } from "./googleBooks.helpers";
 import { searchOpenLibrary } from "./openLibrary.helpers";
@@ -60,7 +60,7 @@ const searchApis = async (query: string) => {
     lcTopic: lcClassification?.topic,
     lcSubjectCutter: lcClassification?.subjectCutter,
     lcAuthorCutter: lcClassification?.authorCutter,
-    lcYear: lcClassification?.year || 1,
+    lcYear: lcClassification?.year,
     deweyClassification,
     isCheckedIn: false,
   };

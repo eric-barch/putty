@@ -1,10 +1,8 @@
-import { GoogleBook, OpenLibraryBook } from "./book.types";
+import { GoogleBook, OpenLibraryBook } from "./types";
 
 const queryOpenLibrary = async (
   url: string,
 ): Promise<OpenLibraryBook | undefined> => {
-  console.log("olUrl", url);
-
   const response = await fetch(url);
 
   if (!response.ok) return undefined;
@@ -53,11 +51,33 @@ const searchOpenLibrary = async (
     queryOpenLibrary(isbn10Url),
   ]);
 
-  const olBook = isbn13Book || isbn10Book;
+  if (isbn13Book) console.log("olIsbn13Book", isbn13Book);
+  if (isbn10Book) console.log("olIsbn10Book", isbn10Book);
 
-  console.log("olBook", olBook);
+  const olBook = {
+    openLibraryKey: isbn13Book?.openLibraryKey || isbn10Book?.openLibraryKey,
+    title: isbn13Book?.title || isbn10Book?.title,
+    subtitle: isbn13Book?.subtitle || isbn10Book?.subtitle,
+    description: isbn13Book?.description || isbn10Book?.description,
+    publishDate: isbn13Book?.publishDate || isbn10Book?.publishDate,
+    isbn10: isbn13Book?.isbn10 || isbn10Book?.isbn10,
+    isbn13: isbn13Book?.isbn13 || isbn10Book?.isbn13,
+    lccn: isbn13Book?.lccn || isbn10Book?.lccn,
+    lcClassification:
+      isbn13Book?.lcClassification || isbn10Book?.lcClassification,
+    deweyClassification:
+      isbn13Book?.deweyClassification || isbn10Book?.deweyClassification,
+  };
 
-  return olBook;
+  const allUndefined = Object.values(olBook).every(
+    (value) => !value || (Array.isArray(value) && value.length === 0),
+  );
+
+  allUndefined
+    ? console.log("olBook", undefined)
+    : console.log("olBook", olBook);
+
+  return allUndefined ? undefined : olBook;
 };
 
 export { searchOpenLibrary };
