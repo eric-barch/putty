@@ -2,6 +2,7 @@
 
 server/node_modules/
 server/out/
+server/prisma/migrations/
 
 web/node_modules/
 web/out/
