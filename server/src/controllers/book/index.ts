@@ -105,12 +105,12 @@ const getBook = async (request: Request, response: Response) => {
   const { query } = request.params;
 
   try {
-    const book = await searchDb(query);
-    response.status(200).json({ source: "db", book });
+    const details = await searchDb(query);
+    response.status(200).json({ source: "db", details });
   } catch (error) {
     try {
-      const book = await searchApis(query);
-      response.status(200).json({ source: "apis", book });
+      const details = await searchApis(query);
+      response.status(200).json({ source: "apis", details });
     } catch {
       response
         .status(500)
