@@ -130,6 +130,14 @@ const deleteBookRow = async (isbn) => {
   }
 };
 
+const closePopup = () => {
+  const popup = document.getElementById("popupOverlay");
+
+  if (popup) {
+    popup.remove();
+  }
+};
+
 const openPopup = async (book) => {
   const response = await fetch("popup.html");
   const popupHtml = await response.text();
@@ -140,6 +148,9 @@ const openPopup = async (book) => {
   const popupNode = doc.body.firstChild;
 
   /** Set content of elements within the popup. */
+  popupNode
+    .querySelector("#popupCloseButton")
+    .addEventListener("click", () => closePopup());
   popupNode.querySelector("#popupTitle").textContent = book.details.title;
   popupNode.querySelector("#popupAuthors").textContent = book.details.authors;
   popupNode.querySelector("#popupDewey").textContent =
@@ -180,14 +191,6 @@ const openPopup = async (book) => {
   /** Append popup node to body and make it visible. */
   document.body.appendChild(popupNode);
   popupNode.style.display = "flex";
-};
-
-window.closePopup = () => {
-  const popup = document.getElementById("popupOverlay");
-
-  if (popup) {
-    popup.remove();
-  }
 };
 
 const searchBook = async (event) => {
@@ -243,31 +246,7 @@ const bookEventListener = () => {
   };
 };
 
-const handleTitleClick = (event) => {
-  let targetRow = event.target;
-
-  while (targetRow != this && !targetRow.hasAttribute("data-isbn")) {
-    targetRow = targetRow.parentNode;
-  }
-
-  if (!targetRow.hasAttribute("data-isbn")) return;
-
-  const book = {
-    title: targetRow.querySelector(".title").textContent,
-    authors: targetRow.querySelector(".authors").textContent,
-    deweyClassification: targetRow.querySelector(".deweyClassification")
-      .textContent,
-    lcClassification: targetRow.querySelector(".lcClassification").textContent,
-    isCheckedIn: targetRow.querySelector(".isCheckedIn").textContent,
-  };
-
-  openPopup(book);
-};
-
 document.addEventListener("DOMContentLoaded", bookEventListener);
 document.getElementById("searchForm").addEventListener("submit", searchBook);
-document
-  .getElementById("bookTableBody")
-  .addEventListener("click", handleTitleClick);
 
 createAllBookRows();
