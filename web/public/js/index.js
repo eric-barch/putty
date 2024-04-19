@@ -1,5 +1,13 @@
 import { getHighlightedBookRow, setHighlightedBookRow } from "./global.js";
 
+const getAllBooks = async () => {
+  const response = await fetch(`/api/book`, {
+    method: "GET",
+  });
+  const books = await response.json();
+  return books;
+};
+
 const getBook = async (isbn) => {
   const response = await fetch(`/api/book/${isbn}`, {
     method: "GET",
@@ -49,9 +57,7 @@ const createBookRow = (book) => {
 
 const createAllBookRows = async () => {
   const bookTableBody = document.getElementById("bookTableBody");
-
-  const response = await fetch(`/api/book`, { method: "GET" });
-  const books = await response.json();
+  const books = await getAllBooks();
 
   books.forEach((book) => {
     const bookRow = createBookRow(book);
