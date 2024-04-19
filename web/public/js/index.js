@@ -4,7 +4,9 @@ const getAllBooks = async () => {
   const response = await fetch(`/api/book`, {
     method: "GET",
   });
+
   const books = await response.json();
+
   return books;
 };
 
@@ -20,7 +22,9 @@ const getBook = async (isbn) => {
   const response = await fetch(`/api/book/${isbn}`, {
     method: "GET",
   });
+
   const book = await response.json();
+
   return book;
 };
 
@@ -29,7 +33,9 @@ const createBookRow = (book) => {
     .importNode(bookRowTemplate.content, true)
     .querySelector("tr");
 
-  bookRow.setAttribute("data-isbn", book.scannedIsbn);
+  const isbn = book.isbn13 || book.isbn10;
+
+  bookRow.setAttribute("data-isbn", isbn);
 
   const cells = bookRow.querySelectorAll("td");
 
@@ -118,7 +124,10 @@ const putBookRow = async (isbn) => {
 
 const deleteBookRow = async (isbn) => {
   const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
-  bookRow.remove();
+
+  if (bookRow) {
+    bookRow.remove();
+  }
 };
 
 const openPopup = async (book) => {
