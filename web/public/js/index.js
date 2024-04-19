@@ -8,12 +8,6 @@ const getBook = async (isbn) => {
   return book;
 };
 
-const postBook = async (isbn) => {};
-
-const putBook = async (isbn) => {};
-
-const deleteRow = async (isbn) => {};
-
 const createBookRow = (book) => {
   const bookRow = document
     .importNode(bookRowTemplate.content, true)
@@ -65,7 +59,7 @@ const createAllBookRows = async () => {
   });
 };
 
-const insertRow = async (isbn) => {
+const postBookRow = async (isbn) => {
   const { book } = await getBook(isbn);
   const newBookRow = createBookRow(book);
 
@@ -84,7 +78,7 @@ const insertRow = async (isbn) => {
   bookTableBody.appendChild(newBookRow);
 };
 
-const updateRow = async (isbn) => {
+const putBookRow = async (isbn) => {
   const book = getBook(isbn);
   const bookRow = bookTableBody.querySelector(
     `tr[data-isbn="${book.scannedIsbn}"]`,
@@ -100,7 +94,7 @@ const updateRow = async (isbn) => {
 
   if (lcClassification !== book.lcClassification) {
     bookRow.remove();
-    await insertRow(isbn);
+    await postBookRow(isbn);
   } else {
     /**Classification hasn't changed. No need to re-sort. */
     const newBookRow = createBookRow(book);
@@ -168,10 +162,10 @@ const bookEventListener = () => {
 
     switch (action) {
       case "post":
-        await insertRow(isbn);
+        await postBookRow(isbn);
         break;
       case "put":
-        await updateRow(isbn);
+        await putBookRow(isbn);
         break;
       case "delete":
         await deleteRow(isbn);
