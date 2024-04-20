@@ -1,3 +1,5 @@
+import { getAllBooks } from "./apiRequests.js";
+
 const createBookRow = (book) => {
   const bookRow = document
     .importNode(bookRowTemplate.content, true)

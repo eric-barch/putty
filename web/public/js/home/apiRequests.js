@@ -25,3 +25,5 @@ const getBook = async (isbn) => {
 
   return book;
 };
+
+export { getAllBooks, postBook, getBook };

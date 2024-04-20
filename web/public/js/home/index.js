@@ -1,11 +1,12 @@
-import { getHighlightedBookRow, setHighlightedBookRow } from "./global.js";
+import { getHighlightedBookRow, setHighlightedBookRow } from "/js/global.js";
+import { getBook } from "./apiRequests.js";
 import {
   postAllBookRows,
   postBookRow,
   putBookRow,
   deleteBookRow,
 } from "./bookRows.js";
-import { openPopup } from "./popup";
+import { openPopup } from "./popup.js";
 
 const searchBook = async (event) => {
   event.preventDefault();
@@ -14,24 +15,23 @@ const searchBook = async (event) => {
   const query = searchInput.value;
 
   try {
-    const bookRow = document.querySelector(`tr[data-isbn="${query}"]`);
     const highlightedBookRow = getHighlightedBookRow();
+    const bookRow = document.querySelector(`tr[data-isbn="${query}"]`);
 
     if (highlightedBookRow) {
       highlightedBookRow.style.backgroundColor = "";
     }
 
+    setHighlightedBookRow(bookRow);
     bookRow.style.backgroundColor = "lightyellow";
     bookRow.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    setHighlightedBookRow(bookRow);
   } catch {
     const book = await getBook(query);
 
     if (book.source === "db") {
-      throw new Error(
-        `Book with ISBN ${query} is in database but not displayed in table.`,
-      );
+      const errorMessage = `Book with ISBN ${query} is in database but not displayed in table.`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
     openPopup(book);
@@ -54,7 +54,7 @@ const bookEventListener = () => {
         await putBookRow(isbn);
         break;
       case "delete":
-        await deleteRow(isbn);
+        await deleteBookRow(isbn);
         break;
       default:
         throw new Error(`Unrecognized action: ${action}`);

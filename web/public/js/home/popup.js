@@ -1,3 +1,5 @@
+import { postBook } from "./apiRequests.js";
+
 const closePopup = () => {
   const popup = document.getElementById("popupOverlay");
 
@@ -7,7 +9,7 @@ const closePopup = () => {
 };
 
 const openPopup = async (book) => {
-  const response = await fetch("popup.html");
+  const response = await fetch("/html/home/popup.html");
   const popupHtml = await response.text();
 
   /** Create a DOM node from the fetched HTML string. */
