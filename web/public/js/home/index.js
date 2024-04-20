@@ -3,16 +3,16 @@ import { getBook } from "./apiRequests.js";
 import { postAllBookRows } from "./bookRows.js";
 import { openPopup } from "./popup.js";
 
-const searchForBookRow = (isbn) => {
+const searchForBookRow = (query) => {
   const highlightedBookRow = getHighlightedBookRow();
-  const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
+  const bookRow = document.querySelector(`tr[data-isbn="${query}"]`);
 
   if (highlightedBookRow) {
     highlightedBookRow.style.backgroundColor = "";
   }
 
   if (!bookRow) {
-    throw new Error(`Did not find book row with ISBN ${isbn}.`);
+    throw new Error(`${query} is not an ISBN in bookTable.`);
   }
 
   setHighlightedBookRow(bookRow);
