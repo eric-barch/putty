@@ -4,6 +4,7 @@ import { sendBookEvent } from "../events";
 import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
 import { searchGoogleBooks } from "./googleBooks.helpers";
 import { searchOpenLibrary } from "./openLibrary.helpers";
+import { BookAction } from "../events/event.types";
 
 const prisma = new PrismaClient();
 
@@ -92,9 +93,10 @@ const postBook = async (request: Request, response: Response) => {
     if (!data) throw new Error("data is undefined");
 
     const book = await prisma.book.create({ data });
+
     response.status(201).json(book);
-    sendBookEvent({ action: "post", isbn });
-  } catch (error) {
+    sendBookEvent({ action: BookAction.POST, book });
+  } catch {
     response
       .status(500)
       .json({ message: `Failed to post book with ISBN ${isbn}` });
@@ -142,8 +144,10 @@ const putBook = async (request: Request, response: Response) => {
       });
     }
 
+    if (!book) throw new Error(`Book is undefined.`);
+
     response.status(200).json(book);
-    sendBookEvent({ action: "put", isbn });
+    sendBookEvent({ action: BookAction.PUT, book });
   } catch {
     response.status(500).json({
       message: `Failed to put book with ISBN ${isbn}.`,
@@ -154,23 +158,27 @@ const putBook = async (request: Request, response: Response) => {
 const deleteBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
+  let book: Book | undefined;
+
   try {
     if (isbn.length === 10) {
-      await prisma.book.delete({
+      book = await prisma.book.delete({
         where: {
           isbn10: isbn,
         },
       });
     } else if (isbn.length === 13) {
-      await prisma.book.delete({
+      book = await prisma.book.delete({
         where: {
           isbn13: isbn,
         },
       });
     }
 
+    if (!book) throw new Error(`Book is undefined.`);
+
     response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
-    sendBookEvent({ action: "delete", isbn });
+    sendBookEvent({ action: BookAction.DELETE, book });
   } catch (error) {
     response
       .status(500)

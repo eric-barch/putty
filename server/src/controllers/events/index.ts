@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
+import { BookEvent } from "./event.types";
 
 let responses: Response[] = [];
 
-const sendBookEvent = (data: any) => {
+const sendBookEvent = (event: BookEvent) => {
   responses.forEach((response) =>
-    response.write(`data: ${JSON.stringify(data)}\n\n`),
+    response.write(`data: ${JSON.stringify(event)}\n\n`),
   );
 };
 
