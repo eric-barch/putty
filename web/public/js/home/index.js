@@ -8,39 +8,56 @@ import {
 } from "./bookRows.js";
 import { openPopup } from "./popup.js";
 
-const searchBook = async (event) => {
+const searchForBookRow = (isbn) => {
+  console.log(`Searching for book row with ISBN ${isbn}.`);
+
+  const highlightedBookRow = getHighlightedBookRow();
+  const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
+
+  if (highlightedBookRow) {
+    highlightedBookRow.style.backgroundColor = "";
+  }
+
+  if (bookRow) {
+    console.log(`Found book row with ISBN ${isbn}.`);
+  } else {
+    const errorMessage = `Did not find book row with ISBN ${isbn}.`;
+    console.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  setHighlightedBookRow(bookRow);
+
+  bookRow.style.backgroundColor = "lightyellow";
+  bookRow.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
+const searchForBook = async (event) => {
   event.preventDefault();
 
   const searchInput = document.getElementById("searchInput");
   const query = searchInput.value;
 
   try {
-    const highlightedBookRow = getHighlightedBookRow();
-    const bookRow = document.querySelector(`tr[data-isbn="${query}"]`);
-
-    if (highlightedBookRow) {
-      highlightedBookRow.style.backgroundColor = "";
-    }
-
-    setHighlightedBookRow(bookRow);
-    bookRow.style.backgroundColor = "lightyellow";
-    bookRow.scrollIntoView({ behavior: "smooth", block: "center" });
+    searchForBookRow(query);
   } catch {
     const book = await getBook(query);
+    console.log("book", book);
 
-    if (book.source === "db") {
-      const errorMessage = `Book with ISBN ${query} is in database but not displayed in table.`;
-      console.error(errorMessage);
-      throw new Error(errorMessage);
+    const isbn = book.details.isbn13 || book.details.isbn10;
+    console.log("isbn", isbn);
+
+    try {
+      searchForBookRow(isbn);
+    } catch {
+      openPopup(book);
     }
-
-    openPopup(book);
   }
 
   searchInput.value = "";
 };
 
-const bookEventListener = () => {
+const eventListener = () => {
   const eventSource = new EventSource(`/api/book-events`);
 
   eventSource.onmessage = async (event) => {
@@ -62,7 +79,7 @@ const bookEventListener = () => {
   };
 };
 
-document.addEventListener("DOMContentLoaded", bookEventListener);
-document.getElementById("searchForm").addEventListener("submit", searchBook);
+document.addEventListener("DOMContentLoaded", eventListener);
+document.getElementById("searchForm").addEventListener("submit", searchForBook);
 
 postAllBookRows();
