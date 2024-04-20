@@ -64,13 +64,16 @@ const eventListener = () => {
     const { isbn, action } = JSON.parse(event.data);
 
     switch (action) {
-      case "post":
+      case "POST":
+        console.log(`Received POST event.`);
         await postBookRow(isbn);
         break;
-      case "put":
+      case "PUT":
+        console.log(`Received PUT event.`);
         await putBookRow(isbn);
         break;
-      case "delete":
+      case "DELETE":
+        console.log(`Received DELETE event.`);
         await deleteBookRow(isbn);
         break;
       default:

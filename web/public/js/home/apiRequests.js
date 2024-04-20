@@ -1,29 +1,79 @@
 const getAllBooks = async () => {
+  console.log("getAllBooks");
+
   const response = await fetch(`/api/book`, {
     method: "GET",
   });
 
-  const books = await response.json();
+  const responseBooks = await response.json();
 
-  return books;
+  /**console.log("responseBooks", responseBooks); */
+
+  return responseBooks;
 };
 
-const postBook = async (book) => {
-  const isbn = book.details.isbn13 || book.details.isbn10;
+const postBook = async (requestBook) => {
+  console.log("postBook", requestBook);
 
-  await fetch(`/api/book/${isbn}`, {
+  const response = await fetch(`/api/book/${isbn}`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBook),
   });
+
+  const responseBook = await response.json();
+
+  console.log("responseBook", responseBook);
+
+  return responseBook;
 };
 
 const getBook = async (isbn) => {
+  console.log("getBook", isbn);
+
   const response = await fetch(`/api/book/${isbn}`, {
     method: "GET",
   });
 
-  const book = await response.json();
+  const responseBook = await response.json();
 
-  return book;
+  console.log("responseBook", responseBook);
+
+  return responseBook;
 };
 
-export { getAllBooks, postBook, getBook };
+const putBook = async (requestBook) => {
+  console.log("putBook", requestBook);
+
+  const response = await fetch(`/api/book/${isbn}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBook),
+  });
+
+  const responseBook = await response.json();
+
+  console.log("responseBook", responseBook);
+
+  return responseBook;
+};
+
+const deleteBook = async (isbn) => {
+  console.log("deleteBook", isbn);
+
+  const response = await fetch(`/api/book/${isbn}`, {
+    method: "DELETE",
+  });
+
+  const responseBook = await response.json();
+
+  console.log("responseBook", responseBook);
+
+  return responseBook;
+};
+
+export { getAllBooks, postBook, getBook, putBook, deleteBook };
