@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getAllDbBooks,
+  getAllBooks,
   getBook,
   postBook,
   putBook,
@@ -10,7 +10,7 @@ import { getBookEvents } from "@/controllers/events";
 
 const routes = Router();
 
-routes.get("/book", getAllDbBooks);
+routes.get("/book", getAllBooks);
 routes.post("/book/:isbn", postBook);
 routes.get("/book/:query", getBook);
 routes.put("/book/:isbn", putBook);
