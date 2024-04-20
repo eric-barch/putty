@@ -1,10 +1,8 @@
 import { Book, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { sendBookEvent } from "../events";
 import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
 import { searchGoogleBooks } from "./googleBooks.helpers";
 import { searchOpenLibrary } from "./openLibrary.helpers";
-import { BookAction } from "../events/event.types";
 
 const prisma = new PrismaClient();
 
@@ -67,7 +65,7 @@ const searchApis = async (query: string) => {
   };
 };
 
-const getAllDbBooks = async (request: Request, response: Response) => {
+const getAllBooks = async (request: Request, response: Response) => {
   try {
     const books = await prisma.book.findMany({
       orderBy: [
@@ -80,26 +78,18 @@ const getAllDbBooks = async (request: Request, response: Response) => {
 
     response.status(200).json(books);
   } catch (error) {
-    response.status(500).json({ error: "Failed to get all database books." });
+    response.status(500).json({ error: "Failed to get all books." });
   }
 };
 
 const postBook = async (request: Request, response: Response) => {
-  const { isbn } = request.params;
+  const requestBook = request.body;
 
   try {
-    const data = await searchApis(isbn);
-
-    if (!data) throw new Error("data is undefined");
-
-    const book = await prisma.book.create({ data });
-
-    response.status(201).json(book);
-    sendBookEvent({ action: BookAction.POST, book });
+    const responseBook = await prisma.book.create({ data: requestBook });
+    response.status(201).json(responseBook);
   } catch {
-    response
-      .status(500)
-      .json({ message: `Failed to post book with ISBN ${isbn}` });
+    response.status(500).json({ message: `Failed to post book.`, requestBook });
   }
 };
 
@@ -107,12 +97,12 @@ const getBook = async (request: Request, response: Response) => {
   const { query } = request.params;
 
   try {
-    const details = await searchDb(query);
-    response.status(200).json({ source: "db", details });
+    const book = await searchDb(query);
+    response.status(200).json({ source: "db", book });
   } catch (error) {
     try {
-      const details = await searchApis(query);
-      response.status(200).json({ source: "apis", details });
+      const book = await searchApis(query);
+      response.status(200).json({ source: "apis", book });
     } catch {
       response
         .status(500)
@@ -123,34 +113,29 @@ const getBook = async (request: Request, response: Response) => {
 
 const putBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
-  const data = request.body;
+  const requestBook = request.body;
 
   try {
-    let book: Book | undefined;
-
-    if (isbn.length === 10) {
-      book = await prisma.book.update({
+    const responseBook = await prisma.book
+      .findFirst({
         where: {
-          isbn10: isbn,
+          OR: [{ isbn13: isbn }, { isbn10: isbn }],
         },
-        data,
-      });
-    } else if (isbn.length === 13) {
-      book = await prisma.book.update({
-        where: {
-          isbn13: isbn,
-        },
-        data,
-      });
-    }
+      })
+      .then(
+        (book) =>
+          book &&
+          prisma.book.update({
+            where: { id: book.id },
+            data: requestBook,
+          }),
+      );
 
-    if (!book) throw new Error(`Book is undefined.`);
-
-    response.status(200).json(book);
-    sendBookEvent({ action: BookAction.PUT, book });
+    response.status(200).json(responseBook);
   } catch {
     response.status(500).json({
-      message: `Failed to put book with ISBN ${isbn}.`,
+      message: `Failed to put book.`,
+      requestBook,
     });
   }
 };
@@ -158,32 +143,25 @@ const putBook = async (request: Request, response: Response) => {
 const deleteBook = async (request: Request, response: Response) => {
   const { isbn } = request.params;
 
-  let book: Book | undefined;
-
   try {
-    if (isbn.length === 10) {
-      book = await prisma.book.delete({
+    const responseBook = await prisma.book
+      .findFirst({
         where: {
-          isbn10: isbn,
+          OR: [{ isbn13: isbn }, { isbn10: isbn }],
         },
-      });
-    } else if (isbn.length === 13) {
-      book = await prisma.book.delete({
-        where: {
-          isbn13: isbn,
-        },
-      });
-    }
+      })
+      .then(
+        (book) =>
+          book &&
+          prisma.book.delete({
+            where: { id: book.id },
+          }),
+      );
 
-    if (!book) throw new Error(`Book is undefined.`);
-
-    response.status(200).json({ message: `Deleted book with ISBN ${isbn}.` });
-    sendBookEvent({ action: BookAction.DELETE, book });
+    response.status(200).json(responseBook);
   } catch (error) {
-    response
-      .status(500)
-      .json({ message: `Failed to delete book with ISBN ${isbn}.` });
+    response.status(500).json({ message: `Failed to delete book.`, isbn });
   }
 };
 
-export { getAllDbBooks, getBook, postBook, deleteBook, putBook };
+export { getAllBooks, getBook, postBook, deleteBook, putBook };
