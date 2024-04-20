@@ -1,4 +1,9 @@
-import { postBook } from "./apiRequests.js";
+import {
+  handleCheckIn,
+  handleCheckOut,
+  handleDelete,
+  handlePost,
+} from "./eventHandlers.js";
 
 const closePopup = () => {
   const popup = document.getElementById("popupOverlay");
