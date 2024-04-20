@@ -1,16 +1,9 @@
 import { getHighlightedBookRow, setHighlightedBookRow } from "/js/global.js";
 import { getBook } from "./apiRequests.js";
-import {
-  postAllBookRows,
-  postBookRow,
-  putBookRow,
-  deleteBookRow,
-} from "./bookRows.js";
+import { postAllBookRows } from "./bookRows.js";
 import { openPopup } from "./popup.js";
 
 const searchForBookRow = (isbn) => {
-  console.log(`Searching for book row with ISBN ${isbn}.`);
-
   const highlightedBookRow = getHighlightedBookRow();
   const bookRow = document.querySelector(`tr[data-isbn="${isbn}"]`);
 
@@ -18,12 +11,8 @@ const searchForBookRow = (isbn) => {
     highlightedBookRow.style.backgroundColor = "";
   }
 
-  if (bookRow) {
-    console.log(`Found book row with ISBN ${isbn}.`);
-  } else {
-    const errorMessage = `Did not find book row with ISBN ${isbn}.`;
-    console.error(errorMessage);
-    throw new Error(errorMessage);
+  if (!bookRow) {
+    throw new Error(`Did not find book row with ISBN ${isbn}.`);
   }
 
   setHighlightedBookRow(bookRow);
@@ -41,48 +30,21 @@ const searchForBook = async (event) => {
   try {
     searchForBookRow(query);
   } catch {
-    const book = await getBook(query);
-    console.log("book", book);
+    const { source, book } = await getBook(query);
 
-    const isbn = book.details.isbn13 || book.details.isbn10;
-    console.log("isbn", isbn);
+    const inLibrary = source === "db";
+    const isbn = book.isbn13 || book.isbn10;
 
     try {
       searchForBookRow(isbn);
     } catch {
-      openPopup(book);
+      openPopup(inLibrary, book);
     }
   }
 
   searchInput.value = "";
 };
 
-const eventListener = () => {
-  const eventSource = new EventSource(`/api/book-events`);
-
-  eventSource.onmessage = async (event) => {
-    const { isbn, action } = JSON.parse(event.data);
-
-    switch (action) {
-      case "POST":
-        console.log(`Received POST event.`);
-        await postBookRow(isbn);
-        break;
-      case "PUT":
-        console.log(`Received PUT event.`);
-        await putBookRow(isbn);
-        break;
-      case "DELETE":
-        console.log(`Received DELETE event.`);
-        await deleteBookRow(isbn);
-        break;
-      default:
-        throw new Error(`Unrecognized action: ${action}`);
-    }
-  };
-};
-
-document.addEventListener("DOMContentLoaded", eventListener);
 document.getElementById("searchForm").addEventListener("submit", searchForBook);
 
 postAllBookRows();

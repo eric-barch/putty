@@ -1,7 +1,7 @@
-import { requestFromServer, webRoutes } from "./routes";
 import express from "express";
 import path from "path";
 import { env } from "process";
+import { requestFromServer, webRoutes } from "./routes";
 
 const web = express();
 const port = env.WEB_PORT;

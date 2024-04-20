@@ -1,4 +1,4 @@
-import { getAllBooks } from "./apiRequests.js";
+import { getAllBooks, getBook } from "./apiRequests.js";
 
 const createBookRow = (book) => {
   const bookRow = document
@@ -18,7 +18,7 @@ const createBookRow = (book) => {
     switch (className) {
       case "thumbnail":
         const img = document.createElement("img");
-        img.src = value;
+        img.src = value ? value : "/no-cover.jpeg";
         img.alt = `Book cover for ${book.title}`;
         cell.textContent = "";
         cell.appendChild(img);
@@ -54,8 +54,7 @@ const postAllBookRows = async () => {
   });
 };
 
-const postBookRow = async (isbn) => {
-  const { book } = await getBook(isbn);
+const postBookRow = async (book) => {
   const newBookRow = createBookRow(book);
 
   const bookRows = bookTableBody.querySelectorAll("tr[data-isbn]");
@@ -73,11 +72,9 @@ const postBookRow = async (isbn) => {
   bookTableBody.appendChild(newBookRow);
 };
 
-const putBookRow = async (isbn) => {
-  const book = getBook(isbn);
-  const bookRow = bookTableBody.querySelector(
-    `tr[data-isbn="${book.scannedIsbn}"]`,
-  );
+const putBookRow = async (book) => {
+  const isbn = book.isbn13 || book.isbn10;
+  const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
 
   if (!bookRow) {
     console.error(`Did not find book with ISBN ${isbn}.`);

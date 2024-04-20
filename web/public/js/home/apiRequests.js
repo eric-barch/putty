@@ -1,19 +1,15 @@
 const getAllBooks = async () => {
-  console.log("getAllBooks");
-
   const response = await fetch(`/api/book`, {
     method: "GET",
   });
 
   const responseBooks = await response.json();
 
-  /**console.log("responseBooks", responseBooks); */
-
   return responseBooks;
 };
 
 const postBook = async (requestBook) => {
-  console.log("postBook", requestBook);
+  const isbn = requestBook.isbn13 || requestBook.isbn10;
 
   const response = await fetch(`/api/book/${isbn}`, {
     method: "POST",
@@ -25,28 +21,20 @@ const postBook = async (requestBook) => {
 
   const responseBook = await response.json();
 
-  console.log("responseBook", responseBook);
-
   return responseBook;
 };
 
 const getBook = async (isbn) => {
-  console.log("getBook", isbn);
-
   const response = await fetch(`/api/book/${isbn}`, {
     method: "GET",
   });
 
   const responseBook = await response.json();
 
-  console.log("responseBook", responseBook);
-
   return responseBook;
 };
 
 const putBook = async (requestBook) => {
-  console.log("putBook", requestBook);
-
   const response = await fetch(`/api/book/${isbn}`, {
     method: "PUT",
     headers: {
@@ -57,21 +45,17 @@ const putBook = async (requestBook) => {
 
   const responseBook = await response.json();
 
-  console.log("responseBook", responseBook);
-
   return responseBook;
 };
 
-const deleteBook = async (isbn) => {
-  console.log("deleteBook", isbn);
+const deleteBook = async (requestBook) => {
+  const isbn = requestBook.isbn13 || requestBook.isbn10;
 
   const response = await fetch(`/api/book/${isbn}`, {
     method: "DELETE",
   });
 
   const responseBook = await response.json();
-
-  console.log("responseBook", responseBook);
 
   return responseBook;
 };
