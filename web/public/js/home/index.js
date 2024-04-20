@@ -24,8 +24,7 @@ const searchForBookRow = (query) => {
 const searchForBook = async (event) => {
   event.preventDefault();
 
-  const searchInput = document.getElementById("searchInput");
-  const query = searchInput.value;
+  const query = document.getElementById("searchInput").value;
 
   try {
     searchForBookRow(query);
