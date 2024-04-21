@@ -7,8 +7,10 @@ const createBookRow = (book) => {
     .importNode(bookRowTemplate.content, true)
     .querySelector("tr");
 
+  const id = book.id;
   const isbn = book.isbn13 || book.isbn10;
 
+  bookRow.setAttribute("data-id", id);
   bookRow.setAttribute("data-isbn", isbn);
 
   const cells = bookRow.querySelectorAll("td");
@@ -28,8 +30,8 @@ const createBookRow = (book) => {
       case "title":
         const a = document.createElement("a");
         a.href = "javascript:void(0)";
-        a.textContent = book.title;
         a.addEventListener("click", () => openPopup(true, book));
+        a.textContent = book.title;
         cell.appendChild(a);
         break;
       case "lcClassification":
@@ -70,17 +72,17 @@ const postBookRow = async (book) => {
 };
 
 const putBookRow = async (book) => {
-  const isbn = book.isbn13 || book.isbn10;
-  const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
+  const id = book.id;
+  const bookRow = bookTableBody.querySelector(`tr[data-id="${id}"]`);
 
   if (!bookRow) {
-    console.error(`Did not find book with ISBN ${isbn}.`);
-    throw new Error(`Did not find book with ISBN ${isbn}.`);
+    console.error(`Did not find book with id ${id}.`);
+    throw new Error(`Did not find book with id ${id}.`);
   }
 
   if (compareLcClassifications(book, bookRow) !== 0) {
     bookRow.remove();
-    await postBookRow(isbn);
+    await postBookRow(book);
   } else {
     /**Classification hasn't changed. No need to re-sort. */
     const newBookRow = createBookRow(book);
@@ -89,8 +91,13 @@ const putBookRow = async (book) => {
 };
 
 const deleteBookRow = async (book) => {
-  const isbn = book.isbn13 || book.isbn10;
-  const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
+  const id = book.id;
+  const bookRow = bookTableBody.querySelector(`tr[data-id="${id}"]`);
+
+  if (!bookRow) {
+    console.error(`Did not find book with id ${id}.`);
+    throw new Error(`Did not find book with id ${id}.`);
+  }
 
   if (bookRow) {
     bookRow.remove();
