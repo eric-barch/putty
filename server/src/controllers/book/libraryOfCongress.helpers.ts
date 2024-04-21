@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 import { GoogleBook, LcBook, LcClassification } from "./types";
 
-const parseLcClassification = (
+const parseLcString = (
   str: string | undefined,
 ): LcClassification | undefined => {
   if (!str) return undefined;
@@ -57,7 +57,7 @@ const queryLibraryOfCongress = async (
     .get();
   const publishDateText = $('dateIssued[encoding="marc"]').text().trim();
   const publishDate = publishDateText ? new Date(publishDateText) : undefined;
-  const lcClassification = parseLcClassification(
+  const lcClassification = parseLcString(
     $('classification[authority="lcc"]').text().trim(),
   );
   const deweyClassification =
