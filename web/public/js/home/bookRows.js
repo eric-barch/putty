@@ -1,4 +1,5 @@
 import { getAllBooks } from "./apiRequests.js";
+import { compareLcClassifications } from "./compareLcClassifications.js";
 import { openPopup } from "./popup.js";
 
 const createBookRow = (book) => {
@@ -59,10 +60,7 @@ const postBookRow = async (book) => {
   const bookRows = bookTableBody.querySelectorAll("tr[data-isbn]");
 
   for (const bookRow of bookRows) {
-    const lcClassification =
-      bookRow.querySelector(".lcClassification")?.textContent;
-
-    if (book.lcClassification < lcClassification) {
+    if (compareLcClassifications(book, bookRow) < 0) {
       bookRow.before(newBookRow);
       return;
     }
@@ -80,10 +78,7 @@ const putBookRow = async (book) => {
     throw new Error(`Did not find book with ISBN ${isbn}.`);
   }
 
-  const lcClassification =
-    bookRow.querySelector(".lcClassification")?.textContent;
-
-  if (lcClassification !== book.lcClassification) {
+  if (compareLcClassifications(book, bookRow) !== 0) {
     bookRow.remove();
     await postBookRow(isbn);
   } else {
