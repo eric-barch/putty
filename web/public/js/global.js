@@ -2,10 +2,12 @@ let state = {
   highlightedBookRow: null,
 };
 
-export function setHighlightedBookRow(row) {
+const setHighlightedBookRow = (row) => {
   state.highlightedBookRow = row;
-}
+};
 
-export function getHighlightedBookRow() {
+const getHighlightedBookRow = () => {
   return state.highlightedBookRow;
-}
+};
+
+export { getHighlightedBookRow, setHighlightedBookRow };

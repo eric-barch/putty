@@ -9,9 +9,7 @@ const getAllBooks = async () => {
 };
 
 const postBook = async (requestBook) => {
-  const isbn = requestBook.isbn13 || requestBook.isbn10;
-
-  const response = await fetch(`/api/book/${isbn}`, {
+  const response = await fetch(`/api/book`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,8 +22,8 @@ const postBook = async (requestBook) => {
   return responseBook;
 };
 
-const getBook = async (isbn) => {
-  const response = await fetch(`/api/book/${isbn}`, {
+const getBook = async (query) => {
+  const response = await fetch(`/api/book/${query}`, {
     method: "GET",
   });
 
@@ -35,7 +33,7 @@ const getBook = async (isbn) => {
 };
 
 const putBook = async (requestBook) => {
-  const response = await fetch(`/api/book/${isbn}`, {
+  const response = await fetch(`/api/book`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -49,10 +47,12 @@ const putBook = async (requestBook) => {
 };
 
 const deleteBook = async (requestBook) => {
-  const isbn = requestBook.isbn13 || requestBook.isbn10;
-
-  const response = await fetch(`/api/book/${isbn}`, {
+  const response = await fetch(`/api/book`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBook),
   });
 
   const responseBook = await response.json();

@@ -6,16 +6,13 @@ import {
   putBook,
   deleteBook,
 } from "@/controllers/book";
-import { getBookEvents } from "@/controllers/events";
 
 const routes = Router();
 
 routes.get("/book", getAllBooks);
-routes.post("/book/:isbn", postBook);
+routes.post("/book", postBook);
 routes.get("/book/:query", getBook);
-routes.put("/book/:isbn", putBook);
-routes.delete("/book/:isbn", deleteBook);
-
-routes.get("/book-events", getBookEvents);
+routes.put("/book", putBook);
+routes.delete("/book", deleteBook);
 
 export default routes;

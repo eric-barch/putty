@@ -1,4 +1,5 @@
-import { getAllBooks, getBook } from "./apiRequests.js";
+import { getAllBooks } from "./apiRequests.js";
+import { openPopup } from "./popup.js";
 
 const createBookRow = (book) => {
   const bookRow = document
@@ -27,9 +28,7 @@ const createBookRow = (book) => {
         const a = document.createElement("a");
         a.href = "javascript:void(0)";
         a.textContent = book.title;
-        a.addEventListener("click", () =>
-          openPopup({ source: "db", details: book }),
-        );
+        a.addEventListener("click", () => openPopup(true, book));
         cell.appendChild(a);
         break;
       case "lcClassification":
@@ -94,7 +93,8 @@ const putBookRow = async (book) => {
   }
 };
 
-const deleteBookRow = async (isbn) => {
+const deleteBookRow = async (book) => {
+  const isbn = book.isbn13 || book.isbn10;
   const bookRow = bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
 
   if (bookRow) {

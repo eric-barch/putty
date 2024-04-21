@@ -14,28 +14,26 @@ const closePopup = () => {
 };
 
 const openPopup = async (inLibrary, book) => {
-  console.log("book", book);
-
   const response = await fetch("/html/home/popup.html");
   const popupHtml = await response.text();
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(popupHtml, "text/html");
-  const popupNode = doc.body.firstChild;
+  const popup = doc.body.firstChild;
 
-  popupNode
+  popup
     .querySelector("#popupCloseButton")
     .addEventListener("click", () => closePopup());
-  popupNode.querySelector("#popupTitle").textContent = book.title;
-  popupNode.querySelector("#popupAuthors").textContent = book.authors;
-  popupNode.querySelector("#popupDewey").textContent =
+  popup.querySelector("#popupTitle").textContent = book.title;
+  popup.querySelector("#popupAuthors").textContent = book.authors;
+  popup.querySelector("#popupDewey").textContent =
     `Dewey Classification: ${book.deweyClassification}`;
-  popupNode.querySelector("#popupLoC").textContent =
+  popup.querySelector("#popupLoC").textContent =
     `Library of Congress Classification: ${book.lcClassification}`;
-  popupNode.querySelector("#popupCheckedIn").textContent =
+  popup.querySelector("#popupCheckedIn").textContent =
     `Checked In: ${book.isCheckedIn}`;
 
-  const buttonContainer = popupNode.querySelector("#buttonContainer");
+  const buttonContainer = popup.querySelector("#buttonContainer");
 
   if (inLibrary) {
     if (book.isCheckedIn) {
@@ -64,8 +62,8 @@ const openPopup = async (inLibrary, book) => {
     buttonContainer.appendChild(postButton);
   }
 
-  document.body.appendChild(popupNode);
-  popupNode.style.display = "flex";
+  document.body.appendChild(popup);
+  popup.style.display = "flex";
 };
 
 export { closePopup, openPopup };
