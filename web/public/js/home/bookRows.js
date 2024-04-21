@@ -1,5 +1,5 @@
 import { getAllBooks } from "./apiRequests.js";
-import { compareLcClassifications } from "./compareLcClassifications.js";
+import { compareLcClassifications } from "./lcClassification.js";
 import { openPopup } from "./popup.js";
 
 const createBookRow = (book) => {
