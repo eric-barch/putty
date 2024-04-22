@@ -20,10 +20,10 @@ RUN npm install
 COPY . .
 
 # Ensure entrypoint script is executable.
-RUN chmod +x entrypoint.sh
+RUN chmod +x start.sh
 
 # Expose port 3001.
 EXPOSE 3001
 
 # Start server.
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["start.sh"]
