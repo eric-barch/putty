@@ -59,7 +59,7 @@ const postAllBookRows = async () => {
 const postBookRow = async (book) => {
   const newBookRow = createBookRow(book);
 
-  const bookRows = bookTableBody.querySelectorAll("tr[data-isbn]");
+  const bookRows = bookTableBody.querySelectorAll("tr");
 
   for (const bookRow of bookRows) {
     if (compareLcClassifications(book, bookRow) < 0) {

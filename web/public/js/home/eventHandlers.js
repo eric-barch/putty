@@ -1,6 +1,7 @@
 import { deleteBook, postBook, putBook } from "./apiRequests.js";
 import { deleteBookRow, postBookRow, putBookRow } from "./bookRows.js";
 import { closePopup } from "./popup.js";
+import { searchForBook } from "./search.js";
 
 const handleCheckIn = async (requestBook) => {
   closePopup();
@@ -30,6 +31,7 @@ const handlePost = async (requestBook) => {
   closePopup();
   const responseBook = await postBook(requestBook);
   await postBookRow(responseBook);
+  searchForBook(responseBook.id);
 };
 
 export { handleCheckIn, handleCheckOut, handleDelete, handlePost };

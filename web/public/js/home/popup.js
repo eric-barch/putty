@@ -28,12 +28,12 @@ const openPopup = async (inLibrary, book) => {
   popup.querySelector("#popupAuthors").textContent = book.authors;
   popup.querySelector("#popupDewey").textContent =
     `Dewey Classification: ${book.deweyClassification}`;
-  popup.querySelector("#popupLoC").textContent =
-    `Library of Congress Classification: ${book.lcClassification}`;
+  popup.querySelector("#popupLc").textContent =
+    `LoC Classification: ${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
   popup.querySelector("#popupCheckedIn").textContent =
     `Checked In: ${book.isCheckedIn}`;
 
-  const buttonContainer = popup.querySelector("#buttonContainer");
+  const buttonContainer = popup.querySelector("#popupButtonContainer");
 
   if (inLibrary) {
     if (book.isCheckedIn) {
