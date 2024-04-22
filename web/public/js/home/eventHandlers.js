@@ -7,7 +7,7 @@ const handleCheckIn = async (requestBook) => {
   closePopup();
   const responseBook = await putBook({
     ...requestBook,
-    isCheckedIn: true,
+    checkedIn: true,
   });
   await putBookRow(responseBook);
 };
@@ -16,7 +16,7 @@ const handleCheckOut = async (requestBook) => {
   closePopup();
   const responseBook = await putBook({
     ...requestBook,
-    isCheckedIn: false,
+    checkedIn: false,
   });
   await putBookRow(responseBook);
 };
@@ -29,7 +29,10 @@ const handleDelete = async (requestBook) => {
 
 const handlePost = async (requestBook) => {
   closePopup();
-  const responseBook = await postBook(requestBook);
+  const responseBook = await postBook({
+    ...requestBook,
+    checkedIn: true,
+  });
   await postBookRow(responseBook);
   searchForBook(responseBook.id);
 };
