@@ -34,7 +34,7 @@ const parseLcString = (str) => {
   };
 };
 
-const compareLcClassifications = (book, bookRow) => {
+const compareLcs = (book, bookRow) => {
   const {
     lcClass: bookClass,
     lcTopic: bookTopic,
@@ -78,4 +78,4 @@ const compareLcClassifications = (book, bookRow) => {
   return 0;
 };
 
-export { compareLcClassifications };
+export { compareLcs };

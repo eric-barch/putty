@@ -1,5 +1,5 @@
 import { getAllBooks } from "./apiRequests.js";
-import { compareLcClassifications } from "./lc.js";
+import { compareLcs } from "./lc.js";
 import { openPopup } from "./popup.js";
 
 const createBookRow = (book) => {
@@ -35,8 +35,8 @@ const createBookRow = (book) => {
         cell.appendChild(a);
         break;
       case "lc":
-        const lcClassification = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
-        cell.textContent = lcClassification;
+        const lc = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
+        cell.textContent = lc;
         break;
       default:
         cell.textContent = value;
@@ -61,7 +61,7 @@ const postBookRow = async (book) => {
   const bookRows = bookTableBody.querySelectorAll("tr");
 
   for (const bookRow of bookRows) {
-    if (compareLcClassifications(book, bookRow) < 0) {
+    if (compareLcs(book, bookRow) < 0) {
       bookRow.before(newBookRow);
       return;
     }
@@ -78,7 +78,7 @@ const putBookRow = async (book) => {
     throw new Error(`Did not find book with id ${id}.`);
   }
 
-  if (compareLcClassifications(book, bookRow) !== 0) {
+  if (compareLcs(book, bookRow) !== 0) {
     bookRow.remove();
     await postBookRow(book);
   } else {
