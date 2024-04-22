@@ -48,9 +48,7 @@ const searchGoogleBooks = async (
     (value) => !value || (Array.isArray(value) && value.length === 0),
   );
 
-  const googleBook = allUndefined ? undefined : result;
-
-  return googleBook;
+  return allUndefined ? undefined : result;
 };
 
 export { searchGoogleBooks };
