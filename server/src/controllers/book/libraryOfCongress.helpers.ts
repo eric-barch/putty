@@ -57,11 +57,8 @@ const queryLibraryOfCongress = async (
     .get();
   const publishDateText = $('dateIssued[encoding="marc"]').text().trim();
   const publishDate = publishDateText ? new Date(publishDateText) : undefined;
-  const lcClassification = parseLcString(
-    $('classification[authority="lcc"]').text().trim(),
-  );
-  const deweyClassification =
-    $('classification[authority="ddc"]').text().trim() || undefined;
+  const lc = parseLcString($('classification[authority="lcc"]').text().trim());
+  const dewey = $('classification[authority="ddc"]').text().trim() || undefined;
 
   const result = {
     lccn,
@@ -69,8 +66,8 @@ const queryLibraryOfCongress = async (
     subtitle,
     authors,
     publishDate,
-    lcClassification,
-    deweyClassification,
+    lc,
+    dewey,
   };
 
   const allUndefined = Object.values(result).every(
@@ -117,14 +114,8 @@ const searchLibraryOfCongress = async (
       isbn13Book?.publishDate ||
       isbn10Book?.publishDate ||
       titleAndAuthorBook?.publishDate,
-    lcClassification:
-      isbn13Book?.lcClassification ||
-      isbn10Book?.lcClassification ||
-      titleAndAuthorBook?.lcClassification,
-    deweyClassification:
-      isbn13Book?.deweyClassification ||
-      isbn10Book?.deweyClassification ||
-      titleAndAuthorBook?.deweyClassification,
+    lc: isbn13Book?.lc || isbn10Book?.lc || titleAndAuthorBook?.lc,
+    dewey: isbn13Book?.dewey || isbn10Book?.dewey || titleAndAuthorBook?.dewey,
   };
 
   const allUndefined = Object.values(lcBook).every(

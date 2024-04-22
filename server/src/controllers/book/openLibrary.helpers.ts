@@ -17,8 +17,8 @@ const queryOpenLibrary = async (
   const isbn13 = book.isbn_13?.[0];
   const openLibraryKey = book.key;
   const lccn = book.lccn?.[0];
-  const lcClassification = book.lc_classifications?.[0];
-  const deweyClassification = book.dewey_decimal_class?.[0];
+  const lc = book.lc_classifications?.[0];
+  const dewey = book.dewey_decimal_class?.[0];
 
   const result = {
     title,
@@ -29,8 +29,8 @@ const queryOpenLibrary = async (
     isbn13,
     openLibraryKey,
     lccn,
-    lcClassification,
-    deweyClassification,
+    lc,
+    dewey,
   };
 
   const allUndefined = Object.values(result).every(
@@ -63,10 +63,8 @@ const searchOpenLibrary = async (
     isbn10: isbn13Book?.isbn10 || isbn10Book?.isbn10,
     isbn13: isbn13Book?.isbn13 || isbn10Book?.isbn13,
     lccn: isbn13Book?.lccn || isbn10Book?.lccn,
-    lcClassification:
-      isbn13Book?.lcClassification || isbn10Book?.lcClassification,
-    deweyClassification:
-      isbn13Book?.deweyClassification || isbn10Book?.deweyClassification,
+    lc: isbn13Book?.lc || isbn10Book?.lc,
+    dewey: isbn13Book?.dewey || isbn10Book?.dewey,
   };
 
   const allUndefined = Object.values(olBook).every(

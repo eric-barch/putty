@@ -34,7 +34,7 @@ const createBookRow = (book) => {
         a.textContent = book.title;
         cell.appendChild(a);
         break;
-      case "lcClassification":
+      case "lc":
         const lcClassification = `${book.lcClass || ""}${book.lcTopic || ""} ${book.lcSubjectCutter || ""} ${book.lcAuthorCutter || ""}`;
         cell.textContent = lcClassification;
         break;

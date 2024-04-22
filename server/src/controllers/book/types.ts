@@ -19,8 +19,8 @@ type OpenLibraryBook = {
   isbn10: string | undefined;
   isbn13: string | undefined;
   lccn: string | undefined;
-  lcClassification: LcClassification | undefined;
-  deweyClassification: string | undefined;
+  lc: LcClassification | undefined;
+  dewey: string | undefined;
 };
 
 type LcBook = {
@@ -29,8 +29,8 @@ type LcBook = {
   subtitle: string | undefined;
   authors: string[] | undefined;
   publishDate: Date | undefined;
-  lcClassification: LcClassification | undefined;
-  deweyClassification: string | undefined;
+  lc: LcClassification | undefined;
+  dewey: string | undefined;
 };
 
 type LcClassification = {

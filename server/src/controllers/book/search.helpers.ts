@@ -35,9 +35,8 @@ const searchApis = async (query: string) => {
   const googleId = googleBook.googleId;
   const lccn = lcBook?.lccn;
   const openLibraryKey = olBook?.openLibraryKey;
-  const lcClassification = lcBook?.lcClassification || olBook?.lcClassification;
-  const deweyClassification =
-    lcBook?.deweyClassification || olBook?.deweyClassification;
+  const lc = lcBook?.lc || olBook?.lc;
+  const dewey = lcBook?.dewey || olBook?.dewey;
 
   if (!title) throw new Error("title is required.");
   if (!authors) throw new Error("authors is required.");
@@ -54,13 +53,13 @@ const searchApis = async (query: string) => {
     googleId,
     lccn,
     openLibraryKey,
-    lcClass: lcClassification?.class,
-    lcTopic: lcClassification?.topic,
-    lcSubjectCutter: lcClassification?.subjectCutter,
-    lcAuthorCutter: lcClassification?.authorCutter,
-    lcYear: lcClassification?.year,
-    deweyClassification,
-    isCheckedIn: false,
+    lcClass: lc?.class,
+    lcTopic: lc?.topic,
+    lcSubjectCutter: lc?.subjectCutter,
+    lcAuthorCutter: lc?.authorCutter,
+    lcYear: lc?.year,
+    dewey,
+    checkedIn: false,
   };
 };
 

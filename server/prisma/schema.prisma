@@ -9,25 +9,25 @@ datasource db {
 }
 
 model Book {
-  id                  Int       @id @default(autoincrement())
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  title               String
-  subtitle            String?
-  authors             String
-  publishDate         DateTime?
-  description         String?
-  thumbnail           String?
-  isbn10              String?   @unique
-  isbn13              String?   @unique
-  googleId            String?   @unique
-  lccn                String?   @unique
-  openLibraryKey      String?   @unique
-  deweyClassification String?
-  lcClass             String?
-  lcTopic             Float?
-  lcSubjectCutter     String?
-  lcAuthorCutter      String?
-  lcYear              Int?
-  isCheckedIn         Boolean
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  title           String
+  subtitle        String?
+  authors         String
+  publishDate     DateTime?
+  description     String?
+  thumbnail       String?
+  isbn10          String?   @unique
+  isbn13          String?   @unique
+  googleId        String?   @unique
+  lccn            String?   @unique
+  openLibraryKey  String?   @unique
+  dewey           String?
+  lcClass         String?
+  lcTopic         Float?
+  lcSubjectCutter String?
+  lcAuthorCutter  String?
+  lcYear          Int?
+  checkedIn       Boolean
 }
