@@ -14,7 +14,9 @@ const searchDb = async (isbn: string): Promise<Book> => {
 };
 
 const searchApis = async (query: string) => {
-  const googleBook = await searchGoogleBooks(query);
+  const isIsbn = /^[0-9X]{10}([0-9X]{3})?$/.test(query);
+
+  const googleBook = await searchGoogleBooks(query, isIsbn);
 
   if (!googleBook) return undefined;
 
@@ -30,8 +32,10 @@ const searchApis = async (query: string) => {
     googleBook.publishDate || lcBook?.publishDate || olBook?.publishDate;
   const description = googleBook.description;
   const thumbnail = googleBook.thumbnailLink;
-  const isbn10 = googleBook.isbn10 || olBook?.isbn10;
-  const isbn13 = googleBook.isbn13 || olBook?.isbn13;
+  const isbn10 =
+    isIsbn && query.length === 10 ? query : googleBook.isbn10 || olBook?.isbn10;
+  const isbn13 =
+    isIsbn && query.length === 13 ? query : googleBook.isbn13 || olBook?.isbn13;
   const googleId = googleBook.googleId;
   const lccn = lcBook?.lccn;
   const openLibraryKey = olBook?.openLibraryKey;

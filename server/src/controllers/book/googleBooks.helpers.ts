@@ -2,8 +2,11 @@ import { GoogleBook } from "./types";
 
 const searchGoogleBooks = async (
   query: string,
+  isIsbn: boolean,
 ): Promise<GoogleBook | undefined> => {
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`;
+  const urlQuery = isIsbn ? `isbn:${query}` : query;
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${urlQuery}&maxResults=1`;
+
   const response = await fetch(url);
 
   if (!response.ok) return undefined;
@@ -21,10 +24,10 @@ const searchGoogleBooks = async (
   const authors = bookInfo.authors;
   const description = bookInfo.description;
   const publishDate = new Date(bookInfo.publishedDate);
-  const isbn10 = bookInfo.industryIdentifiers.find(
+  const isbn10 = bookInfo.industryIdentifiers?.find(
     (id: any) => id.type === "ISBN_10",
   )?.identifier;
-  const isbn13 = bookInfo.industryIdentifiers.find(
+  const isbn13 = bookInfo.industryIdentifiers?.find(
     (id: any) => id.type === "ISBN_13",
   )?.identifier;
   const thumbnailLink = bookInfo.imageLinks?.thumbnail;
