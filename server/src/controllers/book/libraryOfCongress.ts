@@ -120,4 +120,4 @@ const searchLibraryOfCongress = async (
   return allUndefined ? undefined : lcBook;
 };
 
-export { searchLibraryOfCongress };
+export { searchLibraryOfCongress, parseLcString };

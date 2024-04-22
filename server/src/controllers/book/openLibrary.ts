@@ -1,4 +1,5 @@
 import { GoogleBook, OpenLibraryBook } from "./types";
+import { parseLcString } from "./libraryOfCongress";
 
 const queryOpenLibrary = async (
   url: string,
@@ -17,7 +18,7 @@ const queryOpenLibrary = async (
   const isbn13 = book.isbn_13?.[0];
   const openLibraryKey = book.key;
   const lccn = book.lccn?.[0];
-  const lc = book.lc_classifications?.[0];
+  const lc = parseLcString(book.lc_classifications?.[0]);
   const dewey = book.dewey_decimal_class?.[0];
 
   const result = {
