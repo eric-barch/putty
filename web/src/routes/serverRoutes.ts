@@ -1,8 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import http, { IncomingMessage } from "http";
 import { env } from "process";
 
-const requestFromServer = (req: Request, res: Response) => {
+const serverRoutes = Router();
+
+serverRoutes.use("/", (req: Request, res: Response) => {
   const hostname = env.SERVER_HOST;
   const port = env.SERVER_PORT;
 
@@ -24,6 +26,6 @@ const requestFromServer = (req: Request, res: Response) => {
   proxy.on("error", (e: Error) => {
     res.status(500).send({ error: "Proxy error", details: e.message });
   });
-};
+});
 
-export { requestFromServer };
+export { serverRoutes };
