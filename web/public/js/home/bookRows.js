@@ -75,7 +75,6 @@ const putBookRow = async (book) => {
   const bookRow = bookTableBody.querySelector(`tr[data-id="${id}"]`);
 
   if (!bookRow) {
-    console.error(`Did not find book with id ${id}.`);
     throw new Error(`Did not find book with id ${id}.`);
   }
 
@@ -94,7 +93,6 @@ const deleteBookRow = async (book) => {
   const bookRow = bookTableBody.querySelector(`tr[data-id="${id}"]`);
 
   if (!bookRow) {
-    console.error(`Did not find book with id ${id}.`);
     throw new Error(`Did not find book with id ${id}.`);
   }
 

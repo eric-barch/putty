@@ -51,9 +51,6 @@ const searchOpenLibrary = async (
     queryOpenLibrary(isbn10Url),
   ]);
 
-  if (isbn13Book) console.log("olIsbn13Book", isbn13Book);
-  if (isbn10Book) console.log("olIsbn10Book", isbn10Book);
-
   const olBook = {
     openLibraryKey: isbn13Book?.openLibraryKey || isbn10Book?.openLibraryKey,
     title: isbn13Book?.title || isbn10Book?.title,
@@ -70,10 +67,6 @@ const searchOpenLibrary = async (
   const allUndefined = Object.values(olBook).every(
     (value) => !value || (Array.isArray(value) && value.length === 0),
   );
-
-  allUndefined
-    ? console.log("olBook", undefined)
-    : console.log("olBook", olBook);
 
   return allUndefined ? undefined : olBook;
 };

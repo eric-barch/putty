@@ -96,11 +96,6 @@ const searchLibraryOfCongress = async (
     queryLibraryOfCongress(titleAndAuthorUrl),
   ]);
 
-  if (isbn13Book) console.log("lcIsbn13Book", isbn13Book);
-  if (isbn10Book) console.log("lcIsbn10Book", isbn10Book);
-  if (titleAndAuthorBook)
-    console.log("lcTitleAndAuthorBook", titleAndAuthorBook);
-
   const lcBook = {
     lccn: isbn13Book?.lccn || isbn10Book?.lccn || titleAndAuthorBook?.lccn,
     title: isbn13Book?.title || isbn10Book?.title || titleAndAuthorBook?.title,
@@ -121,10 +116,6 @@ const searchLibraryOfCongress = async (
   const allUndefined = Object.values(lcBook).every(
     (value) => !value || (Array.isArray(value) && value.length === 0),
   );
-
-  allUndefined
-    ? console.log("lcBook", undefined)
-    : console.log("lcBook", lcBook);
 
   return allUndefined ? undefined : lcBook;
 };

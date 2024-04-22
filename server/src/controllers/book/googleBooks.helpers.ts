@@ -50,8 +50,6 @@ const searchGoogleBooks = async (
 
   const googleBook = allUndefined ? undefined : result;
 
-  console.log("googleBook", googleBook);
-
   return googleBook;
 };
 
