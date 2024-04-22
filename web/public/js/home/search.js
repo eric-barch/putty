@@ -31,7 +31,13 @@ const searchForBook = async (query) => {
     if (source === "db") {
       highlightBookRow(book.id);
     } else {
-      openPopup(false, book);
+      const isbn = book.isbn13 || book.isbn10;
+
+      try {
+        highlightBookRow(isbn);
+      } catch {
+        openPopup(false, book);
+      }
     }
   }
 
