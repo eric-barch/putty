@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { searchApis, searchDb } from "./search.helpers";
+import { searchApis, searchDb } from "./search";
 
 const prisma = new PrismaClient();
 

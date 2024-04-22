@@ -1,14 +1,14 @@
 import { Book, PrismaClient } from "@prisma/client";
-import { searchGoogleBooks } from "./googleBooks.helpers";
-import { searchLibraryOfCongress } from "./libraryOfCongress.helpers";
-import { searchOpenLibrary } from "./openLibrary.helpers";
+import { searchGoogleBooks } from "./googleBooks";
+import { searchLibraryOfCongress } from "./libraryOfCongress";
+import { searchOpenLibrary } from "./openLibrary";
 
 const prisma = new PrismaClient();
 
-const searchDb = async (isbn: string): Promise<Book> => {
+const searchDb = async (query: string): Promise<Book> => {
   return await prisma.book.findFirstOrThrow({
     where: {
-      OR: [{ isbn13: isbn }, { isbn10: isbn }],
+      OR: [{ id: Number(query) }, { isbn13: query }, { isbn10: query }],
     },
   });
 };
@@ -18,7 +18,9 @@ const searchApis = async (query: string) => {
 
   const googleBook = await searchGoogleBooks(query, isIsbn);
 
-  if (!googleBook) return undefined;
+  if (!googleBook) {
+    throw new Error(`googleBook is undefined.`);
+  }
 
   const [lcBook, olBook] = await Promise.all([
     searchLibraryOfCongress(googleBook),

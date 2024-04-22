@@ -15,4 +15,4 @@ routes.get("/book/:query", getBook);
 routes.put("/book", putBook);
 routes.delete("/book", deleteBook);
 
-export default routes;
+export { routes };
