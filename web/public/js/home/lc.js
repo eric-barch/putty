@@ -43,12 +43,9 @@ const compareLcClassifications = (book, bookRow) => {
     lcYear: bookYear,
   } = book;
 
-  const lcClassificationString =
-    bookRow.querySelector(".lcClassification")?.textContent;
+  const lc = bookRow.querySelector(".lc")?.textContent;
 
-  if (!lcClassificationString) {
-    return bookClass ? -1 : 0;
-  }
+  if (!lc) return bookClass ? -1 : 0;
 
   const {
     lcClass: rowClass,
@@ -56,7 +53,7 @@ const compareLcClassifications = (book, bookRow) => {
     lcSubjectCutter: rowSubjectCutter,
     lcAuthorCutter: rowAuthorCutter,
     lcYear: rowYear,
-  } = parseLcString(lcClassificationString);
+  } = parseLcString(lc);
 
   if (bookClass !== rowClass) {
     return bookClass < rowClass ? -1 : 1;
