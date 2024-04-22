@@ -1,13 +1,11 @@
-let state = {
-  highlightedBookRow: null,
-};
+let highlightedBookRow = undefined;
 
 const setHighlightedBookRow = (row) => {
-  state.highlightedBookRow = row;
+  highlightedBookRow = row;
 };
 
 const getHighlightedBookRow = () => {
-  return state.highlightedBookRow;
+  return highlightedBookRow;
 };
 
 export { getHighlightedBookRow, setHighlightedBookRow };
