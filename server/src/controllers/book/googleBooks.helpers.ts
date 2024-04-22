@@ -30,7 +30,7 @@ const searchGoogleBooks = async (
   const isbn13 = bookInfo.industryIdentifiers?.find(
     (id: any) => id.type === "ISBN_13",
   )?.identifier;
-  const thumbnailLink = bookInfo.imageLinks?.thumbnail;
+  const thumbnail = bookInfo.imageLinks?.thumbnail;
 
   const result = {
     title,
@@ -41,7 +41,7 @@ const searchGoogleBooks = async (
     isbn10,
     isbn13,
     googleId,
-    thumbnailLink,
+    thumbnail,
   };
 
   const allUndefined = Object.values(result).every(

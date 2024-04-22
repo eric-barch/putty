@@ -31,7 +31,7 @@ const searchApis = async (query: string) => {
   const publishDate =
     googleBook.publishDate || lcBook?.publishDate || olBook?.publishDate;
   const description = googleBook.description;
-  const thumbnail = googleBook.thumbnailLink;
+  const thumbnail = googleBook.thumbnail;
   const isbn10 =
     isIsbn && query.length === 10 ? query : googleBook.isbn10 || olBook?.isbn10;
   const isbn13 =

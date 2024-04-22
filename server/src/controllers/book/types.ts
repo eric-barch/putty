@@ -7,7 +7,7 @@ type GoogleBook = {
   publishDate: Date | undefined;
   isbn10: string | undefined;
   isbn13: string | undefined;
-  thumbnailLink: string | undefined;
+  thumbnail: string | undefined;
 };
 
 type OpenLibraryBook = {
